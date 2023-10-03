@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Laberinto FIA</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+
+    <!-- implement vuejs 3 link -->
+    <script src="https://unpkg.com/vue@next"></script>
+
+
+    <style>
+        .column-container {
+            display: flex;
+            flex-wrap: wrap;
+            /* Para que las columnas se envuelvan a la siguiente línea si no caben en el ancho del contenedor */
+        }
+
+        .column {
+            flex: 0 0 calc(20% - 20px);
+            /* Ajusta el ancho de las columnas según tus necesidades, en este caso, el 20% se divide por el número de columnas */
+            max-width: calc(5% - 20px);
+            /* También ajusta el ancho máximo para evitar que las columnas se vuelvan demasiado anchas */
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+
+    <div class="container-fluid">
+        <div id="app" class="container p-3 text-center">
+
+            <div v-if="currentPage=='uploadMaze'">
+                <!-- create a form to upload a txt file -->
+                <div class="card mt-5 p-3">
+
+                    <form @submit.prevent="getDataFile" class="chat-form">
+                        <div class="mb-3">
+
+                            <label for="fileInput" class="form-label py-3">
+                                Selecciona el archivo txt que contiene el laberinto a cargar
+                            </label>
+
+                            <input @change="uploadFile" ref="fileInput" type="file" class="form-control" accept=".txt"
+                                required aria-describedby="fileHelpId">
+                            <div id="fileHelpId" class="form-text">
+                                El archivo .txt debe contener los datos de los contactos
+                            </div>
+                        </div>
+                        <button :disabled="isDisabled" type="submit" class="btn btn-outline-dark float-end">
+                            Cargar laberinto
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+
+            <div v-if="page='showMaze'" class="container text-center">
+
+                <div class="container" v-for="row in mazeMatrix">
+                    <div class="column-container">
+                        <br>
+                        <div v-for="col in row" :style="{ backgroundColor: col }" class="d-inline-block column"
+                            style="display: inline-block;">
+                            .
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <script>
+
+        const app = Vue.createApp({
+            data() {
+                return {
+                    message: null,
+                    isDisabled: false,
+                    status: 'danger',
+                    currentPage: 'uploadMaze',
+                    mazeMatrix: [],
+                    colorDictionary: {
+                        0: 'gray',
+                        1: 'orange',
+                        2: 'blue',
+                        3: 'yellow',
+                        4: 'green',
+                    },
+                }
+            },
+            methods: {
+
+                getDataFile() {
+
+                    // get the content of the file
+                    let file = this.$refs.fileInput.files[0];
+
+                    // get the content of the file ans show in console
+                    let reader = new FileReader();
+
+                    // when the file is loaded, assign the content to the mazeMatrix
+                    reader.onload = (e) => {
+                        this.assignMazeMatrixValue(e.target.result);
+                        this.changePage('showMaze');
+
+                    };
+                    reader.readAsText(file);
+                },
+
+                assignMazeMatrixValue: function (content) {
+                    // get the content of the file and assign to the mazeMatrix
+                    this.mazeMatrix = content;
+
+                    this.assignColorToMazeMatrix();
+                },
+
+                assignColorToMazeMatrix: function () {
+
+                    // split the mazeMatrix by line
+                    let mazeMatrixByLine = this.mazeMatrix.split('\n');
+
+                    // split the mazeMatrix by line
+                    let mazeMatrixByLineAndColumn = mazeMatrixByLine.map(line => line.split(','));
+
+                    // assign the color to each value of the mazeMatrix
+                    mazeMatrixByLineAndColumn.forEach((line, indexLine) => {
+
+                        line.forEach((value, indexColumn) => {
+                            mazeMatrixByLineAndColumn[indexLine][indexColumn] = this.colorDictionary[value];
+                        });
+
+                    });
+
+                    // assign the new mazeMatrix to the mazeMatrix
+                    this.mazeMatrix = mazeMatrixByLineAndColumn;
+                },
+
+                changePage: function (page) {
+                    this.currentPage = page;
+                }
+
+
+            },
+        })
+
+        app.mount('#app')
+
+    </script>
+
+
+    <!-- Bootstrap JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
+        </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+        integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
+        </script>
+</body>
+
+</html>
