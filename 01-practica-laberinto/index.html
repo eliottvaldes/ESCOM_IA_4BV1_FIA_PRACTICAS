@@ -13,6 +13,7 @@
 
     <!-- implement vuejs 3 link -->
     <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
     <style>
@@ -86,7 +87,6 @@
     </div>
 
     <script>
-
         const app = Vue.createApp({
             data() {
                 return {
@@ -105,57 +105,40 @@
                 }
             },
             methods: {
-
                 getDataFile() {
-
                     // get the content of the file
                     let file = this.$refs.fileInput.files[0];
-
                     // get the content of the file ans show in console
                     let reader = new FileReader();
-
                     // when the file is loaded, assign the content to the mazeMatrix
                     reader.onload = (e) => {
                         this.assignMazeMatrixValue(e.target.result);
                         this.changePage('showMaze');
-
                     };
                     reader.readAsText(file);
                 },
-
                 assignMazeMatrixValue: function (content) {
                     // get the content of the file and assign to the mazeMatrix
                     this.mazeMatrix = content;
-
                     this.assignColorToMazeMatrix();
                 },
-
                 assignColorToMazeMatrix: function () {
-
                     // split the mazeMatrix by line
                     let mazeMatrixByLine = this.mazeMatrix.split('\n');
-
                     // split the mazeMatrix by line
                     let mazeMatrixByLineAndColumn = mazeMatrixByLine.map(line => line.split(','));
-
                     // assign the color to each value of the mazeMatrix
                     mazeMatrixByLineAndColumn.forEach((line, indexLine) => {
-
                         line.forEach((value, indexColumn) => {
                             mazeMatrixByLineAndColumn[indexLine][indexColumn] = this.colorDictionary[value];
                         });
-
                     });
-
                     // assign the new mazeMatrix to the mazeMatrix
                     this.mazeMatrix = mazeMatrixByLineAndColumn;
                 },
-
                 changePage: function (page) {
                     this.currentPage = page;
                 }
-
-
             },
         })
 
@@ -172,6 +155,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
         integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
         </script>
+
 </body>
 
 </html>
