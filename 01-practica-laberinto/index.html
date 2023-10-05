@@ -65,7 +65,11 @@
 
             </div>
 
-            <div v-if="page='showMaze'" class="container text-center">
+            <div v-if="currentPage=='selectCharacter'">
+                Aqui el apartado para seleccionar personaje
+            </div>
+
+            <div v-if="currentPage=='showMaze'" class="container text-center">
 
                 <div class="container" v-for="row in mazeMatrix">
                     <div class="column-container">
@@ -102,6 +106,24 @@
                         3: 'yellow',
                         4: 'green',
                     },
+                    characters: {
+                        'person': {
+                            id: 1,
+                            name: 'Humano',
+                            icon: '👨',
+                            heights: {
+                                // color_index: peso_de_movi
+                                0: 2,
+                                1: 1,
+                                2: 1,
+                                3: 1,
+                            }
+                        },
+                        'monkey': {
+                            id: 2,
+                            //...
+                        }
+                    }
                 }
             },
             methods: {
@@ -117,7 +139,7 @@
                     // when the file is loaded, assign the content to the mazeMatrix
                     reader.onload = (e) => {
                         this.assignMazeMatrixValue(e.target.result);
-                        this.changePage('showMaze');
+                        this.changePage('selectCharacter');
 
                     };
                     reader.readAsText(file);
