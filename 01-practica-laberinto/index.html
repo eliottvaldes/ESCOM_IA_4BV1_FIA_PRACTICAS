@@ -16,22 +16,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-    <style>
-        .column-container {
-            display: flex;
-            flex-wrap: wrap;
-            /* Para que las columnas se envuelvan a la siguiente línea si no caben en el ancho del contenedor */
-        }
-
-        .column {
-            flex: 0 0 calc(20% - 20px);
-            /* Ajusta el ancho de las columnas según tus necesidades, en este caso, el 20% se divide por el número de columnas */
-            max-width: calc(5% - 20px);
-            /* También ajusta el ancho máximo para evitar que las columnas se vuelvan demasiado anchas */
-        }
-    </style>
-
-
 </head>
 
 <body>
@@ -67,7 +51,9 @@
             </div>
 
             <div v-if="currentPage=='selectCharacter'">
-                Selecciona un personaje:
+                <h2 class="text-center">
+                    Selecciona un personaje:
+                </h2>
                 <!--Show a table where the columns are button of the characters and the rows are the height of each -->
                 <div class="container">
                     <div class="row">
@@ -77,68 +63,158 @@
                                     <span style="font-size: 50px;">{{character.icon}}</span>
                                     <h5 class="card-title">{{character.name}}</h5>
                                     <p class="card-text">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">Terreno</th>
-                                                    <th scope="col">Energía</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr v-for="(value, key) in character.heights">
-                                                    <td :style="{ backgroundColor: colorDictionary[key] }"></td>
-                                                    <td>{{value}}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Terreno</th>
+                                                <th scope="col">Energía</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(value, key) in character.heights">
+                                                <td :style="{ backgroundColor: colorDictionary[key] }"></td>
+                                                <td>{{value}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                     </p>
-                                    <a href="#" class="btn btn-primary">Seleccionar</a>
+                                    <button @click="useCharacter(character)" class="btn btn-primary">
+                                        Seleccionar
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+
             </div>
 
-            <div v-if="currentPage=='showMaze'" class="container text-center">
+            <div v-if="currentPage=='selectStart'">
+                <h2 class="text-center">
+                    Selecciona la casilla de inicio de tu personaje "{{characterSelected.name}}
+                    {{characterSelected.icon}}"
+                </h2>
 
-                <div class="container" v-for="row in mazeMatrix">
-                    <div class="column-container">
-                        <br>
-                        <div v-for="col in row" :style="{ backgroundColor: col }" class="d-inline-block column"
-                            style="display: inline-block;">
-                            .
-                        </div>
-                    </div>
+                <!-- show the maze -->
+                <div class="container">
+                    <table class="table-responsive mx-auto">
+                        <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
+                            <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col] }"
+                                style="width: 50px; height: 40px; border: 1px solid black;">
+                                <span @click="selectPoint('start', {rowIndex,colIndex})"
+                                    style="cursor: crosshair; caret-color: red;">
+                                    {{colIndex+1}}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
 
 
-            </div>
 
 
             </div>
-    </div>
 
-    <script>
-        const app = Vue.createApp({
-            data() {
-                return {
-                    message: null,
-                    isDisabled: false,
-                    status: 'danger',
-                    currentPage: 'uploadMaze',
-                    mazeMatrix: [],
-                    colorDictionary: {
-                        0: 'gray', //montaña
-                        1: 'orange', //tierra
-                        2: 'blue', //agua
-                        3: 'yellow', //arena
-                        4: 'green', //forest
-                        5: 'purple', //swamp
-                        6: 'white', //nieve
-                    },
-                    characters: {
-                        'person': {
+            <div v-if="currentPage=='showMaze'" class="container">
+                <table class="table-responsive mx-auto">
+                    <tr v-for="row in mazeMatrix">
+                        <td v-for="col in row" :style="{ backgroundColor: colorDictionary[col] }"
+                            style="width: 50px; height: 40px; border: 1px solid black;">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+        </div>
+
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        message: null,
+                        isDisabled: false,
+                        status: 'danger',
+                        currentPage: 'uploadMaze',
+                        azeMatrix: "4,4,4,1,1,1,1,1,1,1,1,1,1,4,4,\r\n4,4,4,4,4,4,1,1,1,1,4,3,4,4,4,\r\n4,4,4,2,2,4,1,4,1,1,3,3,4,1,1,\r\n4,4,2,2,2,2,1,4,1,1,3,3,1,1,1,\r\n4,4,2,2,2,2,1,4,4,1,1,3,1,1,1,\r\n4,4,4,2,2,1,1,1,1,1,1,3,3,3,3,\r\n4,4,4,0,0,0,1,1,1,1,1,3,3,3,3,\r\n4,4,4,1,0,4,4,1,1,3,3,3,3,2,2,\r\n4,4,4,1,1,4,4,0,1,3,3,3,2,2,2,\r\n4,4,1,1,1,1,0,0,0,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,2,2,2,2,2,\r\n4,4,1,4,4,1,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n",
+                        //mazeMatrix: [],
+                        colorDictionary: {
+                            0: 'gray', //montaña
+                            1: 'orange', //tierra
+                            2: 'blue', //agua
+                            3: 'yellow', //arena
+                            4: 'green', //forest
+                            5: 'purple', //swamp
+                            6: 'white', //nieve
+                        },
+                        characters: {
+                            'person': {
+                                id: 1,
+                                name: 'Humano',
+                                icon: '👨',
+                                fieldsNotAllowed: [0], //negro - montaña
+                                heights: {
+                                    // color_index: peso_de_movi
+                                    0: 0,
+                                    1: 1,
+                                    2: 2,
+                                    3: 3,
+                                    4: 4,
+                                    5: 5,
+                                    6: 6,
+                                }
+                            },
+                            'monkey': {
+                                id: 2,
+                                name: 'Mono',
+                                icon: '🐒',
+                                fieldsNotAllowed: [0, 6], //negro - montaña
+                                heights: {
+                                    // color_index: peso_de_movi
+                                    0: 0,
+                                    1: 2,
+                                    2: 4,
+                                    3: 3,
+                                    4: 1,
+                                    5: 5,
+                                    6: 0,
+                                }
+                            },
+                            'octopus': {
+                                id: 3,
+                                name: 'Pulpo',
+                                icon: '🐙',
+                                fieldsNotAllowed: [0, 3, 6],
+                                heights: {
+                                    // color_index: peso_de_movi
+                                    0: 0,
+                                    1: 2,
+                                    2: 1,
+                                    3: 0,
+                                    4: 3,
+                                    5: 2,
+                                    6: 0,
+                                }
+                            },
+                            'sasquatch': {
+                                id: 4,
+                                name: 'Pie grande',
+                                icon: '🦶',
+                                fieldsNotAllowed: [2, 3,],
+                                heights: {
+                                    // color_index: peso_de_movi
+                                    0: 15,
+                                    1: 4,
+                                    2: 0,
+                                    3: 0,
+                                    4: 4,
+                                    5: 5,
+                                    6: 3,
+                                }
+                            }
+                        },
+                        characterSelected: {
                             id: 1,
                             name: 'Humano',
                             icon: '👨',
@@ -152,111 +228,99 @@
                                 4: 4,
                                 5: 5,
                                 6: 6,
-                            }
+                            },
                         },
-                        'monkey': {
-                            id: 2,
-                            name: 'Mono',
-                            icon: '🐒',
-                            fieldsNotAllowed: [0, 6], //negro - montaña
-                            heights: {
-                                // color_index: peso_de_movi
-                                0: 0,
-                                1: 2,
-                                2: 4,
-                                3: 3,
-                                4: 1,
-                                5: 5,
-                                6: 0,
-                            }
-                        },
-                        'octopus': {
-                            id: 3,
-                            name: 'Pulpo',
-                            icon: '🐙',
-                            fieldsNotAllowed: [0, 3, 6],
-                            heights: {
-                                // color_index: peso_de_movi
-                                0: 0,
-                                1: 2,
-                                2: 1,
-                                3: 0,
-                                4: 3,
-                                5: 2,
-                                6: 0,
-                            }
-                        },
-                        'sasquatch': {
-                            id: 4,
-                            name: 'Pie grande',
-                            icon: '🦶',
-                            fieldsNotAllowed: [2, 3, ],
-                            heights: {
-                                // color_index: peso_de_movi
-                                0: 15,
-                                1: 4,
-                                2: 0,
-                                3: 0,
-                                4: 4,
-                                5: 5,
-                                6: 3,
-                            }
-                        }
+                        numberOfColumns: 0,
+                        numberOfRows: 0,
                     }
-                }
-            },
-            methods: {
-                getDataFile() {
-                    // get the content of the file
-                    let file = this.$refs.fileInput.files[0];
-                    // get the content of the file ans show in console
-                    let reader = new FileReader();
-                    // when the file is loaded, assign the content to the mazeMatrix
-                    reader.onload = (e) => {
-                        this.assignMazeMatrixValue(e.target.result);
-                        this.changePage('selectCharacter');
+                },
+                mounted() {
+                    this.assignMazeMatrixValue(this.mazeMatrix);
+                },
+                methods: {
+                    getDataFile() {
+                        // get the content of the file
+                        let file = this.$refs.fileInput.files[0];
+                        // get the content of the file ans show in console
+                        let reader = new FileReader();
+                        // when the file is loaded, assign the content to the mazeMatrix
+                        reader.onload = (e) => {
+                            this.assignMazeMatrixValue(e.target.result);
+                            this.changePage('selectCharacter');
 
-                    };
-                    reader.readAsText(file);
-                },
-                assignMazeMatrixValue: function (content) {
-                    // get the content of the file and assign to the mazeMatrix
-                    this.mazeMatrix = content;
-                    this.assignColorToMazeMatrix();
-                },
-                assignColorToMazeMatrix: function () {
-                    // split the mazeMatrix by line
-                    let mazeMatrixByLine = this.mazeMatrix.split('\n');
-                    // split the mazeMatrix by line
-                    let mazeMatrixByLineAndColumn = mazeMatrixByLine.map(line => line.split(','));
-                    // assign the color to each value of the mazeMatrix
-                    mazeMatrixByLineAndColumn.forEach((line, indexLine) => {
-                        line.forEach((value, indexColumn) => {
-                            mazeMatrixByLineAndColumn[indexLine][indexColumn] = this.colorDictionary[value];
+                        };
+                        reader.readAsText(file);
+                    },
+                    assignMazeMatrixValue: function (content) {
+                        // separate the content each '\r\n' to get the rows
+                        let mazeMatrix = content.split('\r\n');
+                        // get the number of rows
+                        this.numberOfRows = mazeMatrix.length;
+                        // for each element in maze matriz remove the last ','
+                        mazeMatrix.forEach((element, index) => {
+                            mazeMatrix[index] = element.slice(0, -1);
                         });
-                    });
-                    // assign the new mazeMatrix to the mazeMatrix
-                    this.mazeMatrix = mazeMatrixByLineAndColumn;
+
+                        // remove the last element of the mazeMatrix
+                        mazeMatrix.pop();
+
+
+                        // for each element in maze matriz separate each ','
+                        mazeMatrix.forEach((element, index) => {
+                            mazeMatrix[index] = element.split(',');
+                        });
+
+                        // get the number of columns
+                        this.numberOfColumns = mazeMatrix[0].length;
+
+                        // parse the string to int
+                        mazeMatrix.forEach((element, index) => {
+                            mazeMatrix[index] = element.map(Number);
+                        });
+
+
+                        this.mazeMatrix = mazeMatrix;
+                    },
+                    assignColorToMazeMatrix: function () {
+                        // split the mazeMatrix by line
+                        let mazeMatrixByLine = this.mazeMatrix.split('\n');
+                        // split the mazeMatrix by line
+                        let mazeMatrixByLineAndColumn = mazeMatrixByLine.map(line => line.split(','));
+                        // assign the color to each value of the mazeMatrix
+                        mazeMatrixByLineAndColumn.forEach((line, indexLine) => {
+                            line.forEach((value, indexColumn) => {
+                                mazeMatrixByLineAndColumn[indexLine][indexColumn] = this.colorDictionary[value];
+                            });
+                        });
+                        // assign the new mazeMatrix to the mazeMatrix
+                        this.mazeMatrix = mazeMatrixByLineAndColumn;
+                    },
+                    changePage: function (page) {
+                        this.currentPage = page;
+                    },
+                    useCharacter: function (character) {
+                        this.characterSelected = character;
+                        this.changePage('selectStart');
+                    },
+                    selectPoint: function (type, point) {
+                        console.log(type, point);
+                    },
                 },
-                changePage: function (page) {
-                    this.currentPage = page;
-                }
-            },
-        })
+            })
 
-        app.mount('#app')
+            app.mount('#app')
 
-    </script>
-
-
-    <!-- Bootstrap JavaScript Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
-        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
         </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
-        integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
-        </script>
+
+        <!-- Bootstrap JavaScript Libraries -->
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+            integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
+            </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+            integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
+            </script>
 
 </body>
 
