@@ -15,6 +15,9 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- animate css link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
     <style>
         body {
             background-color: #dddddd;
@@ -55,7 +58,7 @@
 
             </div>
 
-            <div v-if="currentPage=='selectCharacter'">
+            <div v-if="currentPage=='selectCharacter'" class="animate__animated animate__zoomIn animate__delay-1s">
                 <h2 class="text-center my-3">
                     Selecciona un personaje:
                 </h2>
@@ -77,7 +80,7 @@
                                         </thead>
                                         <tbody>
                                             <tr v-for="(value, key) in character.heights">
-                                                <td :style="{ backgroundColor: colorDictionary[key] }"></td>                                                
+                                                <td :style="{ backgroundColor: colorDictionary[key] }"></td>
                                                 <!-- validate if value is not in the character.fieldsNotAllowed. if its show a times icon -->
                                                 <td v-if="character.fieldsNotAllowed.includes(key)">
                                                     <span style="font-size: 20px; color: red;">&times;</span>
@@ -100,7 +103,7 @@
 
             </div>
 
-            <div v-if="currentPage=='selectStart'">
+            <div v-if="currentPage=='selectStart'" class="animate__animated animate__slideInLeft">
                 <h2 class="text-center my-3">
                     Selecciona la casilla de inicio de tu personaje "{{characterSelected.name}}
                     {{characterSelected.icon}}"
@@ -124,7 +127,7 @@
 
             </div>
 
-            <div v-if="currentPage=='selectEnd'">
+            <div v-if="currentPage=='selectEnd'" class="animate__animated animate__slideInLeft">
                 <h2 class="text-center my-3">
                     Selecciona la casilla de fin de tu personaje "{{characterSelected.name}}
                     {{characterSelected.icon}}"
@@ -149,7 +152,7 @@
                 </div>
             </div>
 
-            <div v-if="currentPage=='showMaze'" class="container">
+            <div v-if="currentPage=='showMaze'" class="container animate__animated animate__bounceIn">
 
                 <!-- header show maze -->
                 <h2 class="text-center my-3">
