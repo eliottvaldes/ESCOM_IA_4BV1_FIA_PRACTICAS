@@ -42,7 +42,7 @@ matriz = [
 
 # Inicializar Pygame
 ventana = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Nueva Matriz 15x15")
+pygame.display.set_caption("Practica 2")
 
 # Variables para el punto inicial
 punto_inicial_seleccionado = False
@@ -56,38 +56,31 @@ punto_final = None
 PERSONAJE = 4
 posicion_personaje = None
 
-#Función para dibujar la matriz en la ventana
 def dibujar_matriz():
     for fila in range(FILA):
         for columna in range(COLUMNA):
             # Calcular las coordenadas de la celda
             x = columna * ANCHO_CELDA
             y = fila * ALTO_CELDA
-
             # Dibujar el fondo de la celda
             if matriz[fila][columna] == 0:
                 color = BLANCO
             else:
                 color = GRIS
             pygame.draw.rect(ventana, color, (x, y, ANCHO_CELDA, ALTO_CELDA))
-
             # Dibujar el contorno de la celda
             pygame.draw.rect(ventana, NEGRO, (x, y, ANCHO_CELDA, ALTO_CELDA), 1)
-
             # Dibujar la selección verde si el punto inicial está seleccionado
             if punto_inicial_seleccionado and punto_inicial == (fila, columna):
                 pygame.draw.rect(ventana, VERDE, (x, y, ANCHO_CELDA, ALTO_CELDA), 4)
-
             # Dibujar la selección roja si el punto final está seleccionado
             if punto_final_seleccionado and punto_final == (fila, columna):
                 pygame.draw.rect(ventana, ROJO, (x, y, ANCHO_CELDA, ALTO_CELDA), 4)
-
             # Dibujar al personaje en la posición inicial
             if posicion_personaje and posicion_personaje == (fila, columna):
                 pygame.draw.circle(ventana, AZUL, (x + ANCHO_CELDA // 2, y + ALTO_CELDA // 2), ANCHO_CELDA // 2 - 2)
 
-
-# Función para definir el punto inicial mediante clic de mouse y generar personaje
+# Función para definir el punto inicial mediante clic de mouse
 def puntoInicial():
     global punto_inicial_seleccionado, punto_inicial, posicion_personaje
     punto_inicial_seleccionado = True
@@ -98,14 +91,14 @@ def puntoInicial():
                 sys.exit()
             elif evento.type == pygame.MOUSEBUTTONDOWN and punto_inicial_seleccionado:
                 x, y = pygame.mouse.get_pos()
-                fila = y // ALTO_CELDA
-                columna = x // ANCHO_CELDA
-                punto_inicial = (fila, columna)
-                matriz[fila][columna] = PERSONAJE  # Marcar la posición del personaje
-                posicion_personaje = punto_inicial
-                print(f"Punto Inicial: {punto_inicial}")
-                return punto_inicial
-
+                if matriz[y // ALTO_CELDA][x // ANCHO_CELDA] != 1:
+                    fila = y // ALTO_CELDA
+                    columna = x // ANCHO_CELDA
+                    punto_inicial = (fila, columna)
+                    matriz[fila][columna] = PERSONAJE  # Marcar la posición del personaje
+                    posicion_personaje = punto_inicial
+                    print(f"Punto Inicial: {punto_inicial}")
+                    return punto_inicial
 
 # Función para definir el punto final mediante clic de mouse
 def puntoFinal():
@@ -118,18 +111,53 @@ def puntoFinal():
                 sys.exit()
             elif evento.type == pygame.MOUSEBUTTONDOWN and punto_final_seleccionado:
                 x, y = pygame.mouse.get_pos()
-                fila = y // ALTO_CELDA
-                columna = x // ANCHO_CELDA
-                punto_final = (fila, columna)
-                print(f"Punto Final: {punto_final}")
-                return punto_final
+                #verifica que la posicion marcada no sea un 1 dentro de la matriz
+                if matriz[y // ALTO_CELDA][x // ANCHO_CELDA] != 1:
+                    fila = y // ALTO_CELDA
+                    columna = x // ANCHO_CELDA
+                    punto_final = (fila, columna)
+                    print(f"Punto Final: {punto_final}")
+                    return punto_final
+
+# Función para manejar el movimiento del personaje
+def mover_personaje(tecla):
+    global posicion_personaje
+    fila, columna = posicion_personaje
+    tecla= pygame.key.get_pressed()
+    if tecla[pygame.K_w] and fila > 0 and matriz[fila - 1][columna] != 1:
+        matriz[fila][columna] = 0
+        fila -= 1
+    elif tecla[pygame.K_s] and fila < FILA - 1 and matriz[fila + 1][columna] != 1:
+        matriz[fila][columna] = 0
+        fila += 1
+    elif tecla[pygame.K_a] and columna > 0 and matriz[fila][columna - 1] != 1:
+        matriz[fila][columna] = 0
+        columna -= 1
+    elif tecla[pygame.K_d] and columna < COLUMNA - 1 and matriz[fila][columna + 1] != 1:
+        matriz[fila][columna] = 0
+        columna += 1
+    matriz[fila][columna] = PERSONAJE
+    posicion_personaje = (fila, columna)
+
 
 # Bucle principal
+puntoInicial()
+puntoFinal()
+
 while True:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        elif evento.type == pygame.KEYDOWN:
+            if punto_inicial_seleccionado:
+                mover_personaje(evento.key)
+                # Verificar si se llegó al destino
+                if posicion_personaje == punto_final:
+                    print("Llegaste a tu destino!")
+                    pygame.quit()
+                    sys.exit()
+
     # Limpiar la pantalla
     ventana.fill(NEGRO)
 
@@ -138,9 +166,3 @@ while True:
 
     # Actualizar la pantalla
     pygame.display.flip()
-
-    # Llamar a la función puntoInicial
-    puntoInicial()
-
-    #Llama a la funcion puntoFinal
-    puntoFinal()
