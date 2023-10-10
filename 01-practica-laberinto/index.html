@@ -160,7 +160,7 @@
                 <table class="table-responsive mx-auto">
                     <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
                         <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col] }"
-                            style="width: 50px; height: 40px; border: 1px solid black;">
+                            style="width: 50px; height: 40px; border: 1px solid black; max-height: 50px;">
                             <span @click="selectPoint('end', {rowIndex,colIndex})"
                                 style="cursor: crosshair; caret-color: red;">
                                 <p v-if="(rowIndex == characterCoords.rowIndex) && (colIndex == characterCoords.colIndex)"
@@ -177,6 +177,12 @@
                                 </p>
 
 
+
+                                <p v-else>
+
+                                </p>
+                                
+
                                 <p v-else>
 
                                 </p>
@@ -185,21 +191,11 @@
                     </tr>
                 </table>
                 <!-- show btns to move -->
-                <div class="container">
+                <div class="container mt-5">
                     <div class="row">
-                        <div class="col-3">
-                            <button @click="moveLeft" class="btn btn-outline-dark float-end">
-                                Izquierda
-                            </button>
-                        </div>
                         <div class="col-3">
                             <button @click="moveUp" class="btn btn-outline-dark float-end">
                                 Arriba
-                            </button>
-                        </div>
-                        <div class="col-3">
-                            <button @click="moveRight" class="btn btn-outline-dark float-end">
-                                Derecha
                             </button>
                         </div>
                         <div class="col-3">
@@ -207,6 +203,17 @@
                                 Abajo
                             </button>
                         </div>
+                        <div class="col-3">
+                            <button @click="moveLeft" class="btn btn-outline-dark float-end">
+                                Izquierda
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button @click="moveRight" class="btn btn-outline-dark float-end">
+                                Derecha
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -321,7 +328,9 @@
                             startIcon: '🚩',
                             // set an icon for end icon
                             endIcon: '🏁',
-                            characterCoords: {}
+                            characterCoords: {},
+                            coordsVisited: [],
+                            heightsAcumulated: [],
                         }
                     },
                     mounted() {
@@ -435,6 +444,7 @@
                                     // update the position
                                     this.characterCoords.rowIndex = newRow;
                                     this.characterCoords.colIndex = newCol;
+                                    this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
                                 } else {
                                     this.alertNoWayAllowed();
                                 }
@@ -458,6 +468,7 @@
                                     // update the position
                                     this.characterCoords.rowIndex = newRow;
                                     this.characterCoords.colIndex = newCol;
+                                    this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
                                 } else {
                                     this.alertNoWayAllowed();
                                 }
@@ -481,6 +492,7 @@
                                     // update the position
                                     this.characterCoords.rowIndex = newRow;
                                     this.characterCoords.colIndex = newCol;
+                                    this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
                                 } else {
                                     this.alertNoWayAllowed();
                                 }
@@ -504,6 +516,7 @@
                                     // update the position
                                     this.characterCoords.rowIndex = newRow;
                                     this.characterCoords.colIndex = newCol;
+                                    this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
                                 } else {
                                     this.alertNoWayAllowed();
                                 }
@@ -511,7 +524,49 @@
                                 this.alertOutOfBorders();
                             }
                         },
+                        validateUserEnd: function () {
+                            // get the current position
+                            let currentRow = this.characterCoords.rowIndex;
+                            let currentCol = this.characterCoords.colIndex;
+
+                            // get the new position
+                            let newRow = currentRow;
+                            let newCol = currentCol;
+
+                            // check if the new position is valid
+                            if ((newRow == this.endPoint.rowIndex) && (newCol == this.endPoint.colIndex)) {
+                                const totalHeigth = this.calculateTotalHeigth();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '!Felicidades!',
+                                    text: `Has llegado a la meta con un total de ${totalHeigth} de energía gastada`,
+                                })
+                            }
+                        },
+                        accumulateHeigth: function (value) {
+                            this.heightsAcumulated.push(value);
+                        },
+                        calculateTotalHeigth: function () {
+                            let total = 0;
+                            this.heightsAcumulated.forEach(element => {
+                                total += element;
+                            });
+                            return total;
+                        }
                     },
+                    computed: {
+                        isDisabled: function () {
+                            return this.$refs.fileInput.files.length == 0;
+                        }
+                    },
+                    watch: {
+                        'characterCoords.rowIndex': function () {
+                            this.validateUserEnd();
+                        },
+                        'characterCoords.colIndex': function () {
+                            this.validateUserEnd();
+                        }
+                    }
                 })
 
                 app.mount('#app')
