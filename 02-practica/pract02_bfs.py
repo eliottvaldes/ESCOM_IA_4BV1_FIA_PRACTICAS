@@ -78,7 +78,6 @@ def dibujar_matriz():
             if punto_final_seleccionado and punto_final == (fila, columna):
                 pygame.draw.rect(ventana, ROJO, (x, y, ANCHO_CELDA, ALTO_CELDA), 4)
 
-
 # Función para definir el punto inicial mediante clic de mouse
 def puntoInicial():
     global punto_inicial_seleccionado, punto_inicial
