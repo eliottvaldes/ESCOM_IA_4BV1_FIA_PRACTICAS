@@ -10,7 +10,7 @@ BLANCO = (255, 255, 255)
 GRIS = (128, 128, 128)
 VERDE = (0, 255, 0)
 ROJO= (255, 0, 0)
-
+AZUL=(0,0,255)
 # Tamaño de la ventana y de la matriz
 ANCHO = 600
 ALTO = 600
@@ -52,6 +52,10 @@ punto_inicial = None
 punto_final_seleccionado = False
 punto_final = None
 
+#variables para generar personaje
+PERSONAJE = 4
+posicion_personaje = None
+
 #Función para dibujar la matriz en la ventana
 def dibujar_matriz():
     for fila in range(FILA):
@@ -78,9 +82,14 @@ def dibujar_matriz():
             if punto_final_seleccionado and punto_final == (fila, columna):
                 pygame.draw.rect(ventana, ROJO, (x, y, ANCHO_CELDA, ALTO_CELDA), 4)
 
-# Función para definir el punto inicial mediante clic de mouse
+            # Dibujar al personaje en la posición inicial
+            if posicion_personaje and posicion_personaje == (fila, columna):
+                pygame.draw.circle(ventana, AZUL, (x + ANCHO_CELDA // 2, y + ALTO_CELDA // 2), ANCHO_CELDA // 2 - 2)
+
+
+# Función para definir el punto inicial mediante clic de mouse y generar personaje
 def puntoInicial():
-    global punto_inicial_seleccionado, punto_inicial
+    global punto_inicial_seleccionado, punto_inicial, posicion_personaje
     punto_inicial_seleccionado = True
     while True:
         for evento in pygame.event.get():
@@ -92,8 +101,11 @@ def puntoInicial():
                 fila = y // ALTO_CELDA
                 columna = x // ANCHO_CELDA
                 punto_inicial = (fila, columna)
+                matriz[fila][columna] = PERSONAJE  # Marcar la posición del personaje
+                posicion_personaje = punto_inicial
                 print(f"Punto Inicial: {punto_inicial}")
                 return punto_inicial
+
 
 # Función para definir el punto final mediante clic de mouse
 def puntoFinal():
