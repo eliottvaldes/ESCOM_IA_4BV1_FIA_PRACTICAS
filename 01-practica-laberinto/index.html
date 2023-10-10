@@ -164,19 +164,19 @@
                             <span @click="selectPoint('end', {rowIndex,colIndex})"
                                 style="cursor: crosshair; caret-color: red;">
                                 <p v-if="(rowIndex == characterCoords.rowIndex) && (colIndex == characterCoords.colIndex)"
-                                    style="font-size: 20px;">                                    
+                                    style="font-size: 20px;">
                                     {{characterSelected.icon}}
                                 </p>
                                 <p v-if="(rowIndex == startPoint.rowIndex) && (colIndex == startPoint.colIndex)"
-                                    style="font-size: 20px;">                                    
+                                    style="font-size: 20px;">
                                     {{startIcon}}
                                 </p>
                                 <p v-if="(rowIndex == endPoint.rowIndex) && (colIndex == endPoint.colIndex)"
-                                    style="font-size: 20px;">                                    
+                                    style="font-size: 20px;">
                                     {{endIcon}}
                                 </p>
-                                
-                                
+
+
                                 <p v-else>
 
                                 </p>
@@ -381,10 +381,10 @@
                             this.getNumberOfRows(mazeMatrix);
                             // get the rows
                             mazeMatrix = await this.getRows(mazeMatrix);
-                            // get the number of columns
-                            this.getNumberOfColumns(mazeMatrix);
                             // get the columns
                             mazeMatrix = await this.getColumns(mazeMatrix);
+                            // get the number of columns
+                            this.getNumberOfColumns(mazeMatrix);
 
                             this.mazeMatrix = mazeMatrix;
                         },
@@ -397,8 +397,8 @@
                         },
                         selectPoint: function (type, point) {
                             if (type == 'start') {
-                                this.startPoint = point;
-                                this.characterCoords = point;
+                                this.startPoint = { ...point };
+                                this.characterCoords = { ...point };
                                 this.changePage('selectEnd');
                             } else {
                                 this.endPoint = point;
@@ -498,7 +498,7 @@
                             let newCol = currentCol;
 
                             // check if the new position is valid
-                            if (newRow < this.numberOfRows) {
+                            if (newRow < (this.numberOfRows - 1)) {
                                 // check if the new position is allowed
                                 if (!this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[newRow][newCol])) {
                                     // update the position
