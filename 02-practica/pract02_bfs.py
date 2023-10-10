@@ -140,29 +140,27 @@ def mover_personaje(tecla):
     posicion_personaje = (fila, columna)
 
 
-# Bucle principal
-puntoInicial()
-puntoFinal()
-
+# Bucle principa
+cont= 1
+destino=0
 while True:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         elif evento.type == pygame.KEYDOWN:
-            if punto_inicial_seleccionado:
+            if punto_inicial_seleccionado and destino==0:
                 mover_personaje(evento.key)
                 # Verificar si se llegó al destino
                 if posicion_personaje == punto_final:
                     print("Llegaste a tu destino!")
-                    pygame.quit()
-                    sys.exit()
-
-    # Limpiar la pantalla
-    ventana.fill(NEGRO)
+                    destino=1
 
     # Dibujar la matriz en la ventana
     dibujar_matriz()
-
     # Actualizar la pantalla
     pygame.display.flip()
+    if cont:
+        puntoInicial()
+        puntoFinal()
+        cont= cont-1
