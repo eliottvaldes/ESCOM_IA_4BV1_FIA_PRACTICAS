@@ -151,26 +151,32 @@
 
             <div v-if="currentPage=='showMaze'" class="container">
 
+                <!-- header show maze -->
                 <h2 class="text-center my-3">
                     Comienza la aventura de tu personaje "{{characterSelected.name}}
                     {{characterSelected.icon}}
                 </h2>
-
+                <!-- maze -->
                 <table class="table-responsive mx-auto">
                     <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
                         <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col] }"
                             style="width: 50px; height: 40px; border: 1px solid black;">
                             <span @click="selectPoint('end', {rowIndex,colIndex})"
                                 style="cursor: crosshair; caret-color: red;">
-                                <p v-if="(rowIndex == startPoint.rowIndex) && (colIndex == startPoint.colIndex)"
-                                    style="font-size: 20px;">
-                                    {{startIcon}}
+                                <p v-if="(rowIndex == characterCoords.rowIndex) && (colIndex == characterCoords.colIndex)"
+                                    style="font-size: 20px;">                                    
                                     {{characterSelected.icon}}
                                 </p>
-                                <p v-else-if="(rowIndex == endPoint.rowIndex) && (colIndex == endPoint.colIndex)"
-                                    style="font-size: 20px;">
+                                <p v-if="(rowIndex == startPoint.rowIndex) && (colIndex == startPoint.colIndex)"
+                                    style="font-size: 20px;">                                    
+                                    {{startIcon}}
+                                </p>
+                                <p v-if="(rowIndex == endPoint.rowIndex) && (colIndex == endPoint.colIndex)"
+                                    style="font-size: 20px;">                                    
                                     {{endIcon}}
                                 </p>
+                                
+                                
                                 <p v-else>
 
                                 </p>
@@ -178,36 +184,125 @@
                         </td>
                     </tr>
                 </table>
+                <!-- show btns to move -->
+                <div class="container">
+                    <div class="row">
+                        <div class="col-3">
+                            <button @click="moveLeft" class="btn btn-outline-dark float-end">
+                                Izquierda
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button @click="moveUp" class="btn btn-outline-dark float-end">
+                                Arriba
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button @click="moveRight" class="btn btn-outline-dark float-end">
+                                Derecha
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button @click="moveDown" class="btn btn-outline-dark float-end">
+                                Abajo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
 
-
-        </div>
-
-        <script>
-            const app = Vue.createApp({
-                data() {
-                    return {
-                        message: null,
-                        isDisabled: false,
-                        status: 'danger',
-                        currentPage: 'selectStart',
-                        mazeMatrix: "4,4,4,1,1,1,1,1,1,1,1,1,1,4,4,\r\n4,4,4,4,4,4,1,1,1,1,4,3,4,4,4,\r\n4,4,4,2,2,4,1,4,1,1,3,3,4,1,1,\r\n4,4,2,2,2,2,1,4,1,1,3,3,1,1,1,\r\n4,4,2,2,2,2,1,4,4,1,1,3,1,1,1,\r\n4,4,4,2,2,1,1,1,1,1,1,3,3,3,3,\r\n4,4,4,0,0,0,1,1,1,1,1,3,3,3,3,\r\n4,4,4,1,0,4,4,1,1,3,3,3,3,2,2,\r\n4,4,4,1,1,4,4,0,1,3,3,3,2,2,2,\r\n4,4,1,1,1,1,0,0,0,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,2,2,2,2,2,\r\n4,4,1,4,4,1,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n",
-                        //mazeMatrix: [],
-                        colorDictionary: {
-                            0: 'gray', //montaña
-                            1: 'orange', //tierra
-                            2: 'blue', //agua
-                            3: 'yellow', //arena
-                            4: 'green', //forest
-                            5: 'purple', //swamp
-                            6: 'white', //nieve
-                        },
-                        characters: {
-                            'person': {
+            <script>
+                const app = Vue.createApp({
+                    data() {
+                        return {
+                            message: null,
+                            isDisabled: false,
+                            status: 'danger',
+                            currentPage: 'selectStart',
+                            mazeMatrix: "4,4,4,1,1,1,1,1,1,1,1,1,1,4,4,\r\n4,4,4,4,4,4,1,1,1,1,4,3,4,4,4,\r\n4,4,4,2,2,4,1,4,1,1,3,3,4,1,1,\r\n4,4,2,2,2,2,1,4,1,1,3,3,1,1,1,\r\n4,4,2,2,2,2,1,4,4,1,1,3,1,1,1,\r\n4,4,4,2,2,1,1,1,1,1,1,3,3,3,3,\r\n4,4,4,0,0,0,1,1,1,1,1,3,3,3,3,\r\n4,4,4,1,0,4,4,1,1,3,3,3,3,2,2,\r\n4,4,4,1,1,4,4,0,1,3,3,3,2,2,2,\r\n4,4,1,1,1,1,0,0,0,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,2,2,2,2,2,\r\n4,4,1,4,4,1,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n",
+                            //mazeMatrix: [],
+                            colorDictionary: {
+                                0: 'gray', //montaña
+                                1: 'orange', //tierra
+                                2: 'blue', //agua
+                                3: 'yellow', //arena
+                                4: 'green', //forest
+                                5: 'purple', //swamp
+                                6: 'white', //nieve
+                            },
+                            characters: {
+                                'person': {
+                                    id: 1,
+                                    name: 'Humano',
+                                    icon: '👨',
+                                    fieldsNotAllowed: ['0'], //negro - montaña
+                                    heights: {
+                                        // color_index: peso_de_movi
+                                        0: 0,
+                                        1: 1,
+                                        2: 2,
+                                        3: 3,
+                                        4: 4,
+                                        5: 5,
+                                        6: 6,
+                                    }
+                                },
+                                'monkey': {
+                                    id: 2,
+                                    name: 'Mono',
+                                    icon: '🐒',
+                                    fieldsNotAllowed: ['0', '6'], //negro - montaña
+                                    heights: {
+                                        // color_index: peso_de_movi
+                                        0: 0,
+                                        1: 2,
+                                        2: 4,
+                                        3: 3,
+                                        4: 1,
+                                        5: 5,
+                                        6: 0,
+                                    }
+                                },
+                                'octopus': {
+                                    id: 3,
+                                    name: 'Pulpo',
+                                    icon: '🐙',
+                                    fieldsNotAllowed: ['0', '3', '6'],
+                                    heights: {
+                                        // color_index: peso_de_movi
+                                        0: 0,
+                                        1: 2,
+                                        2: 1,
+                                        3: 0,
+                                        4: 3,
+                                        5: 2,
+                                        6: 0,
+                                    }
+                                },
+                                'sasquatch': {
+                                    id: 4,
+                                    name: 'Pie grande',
+                                    icon: '🦶',
+                                    fieldsNotAllowed: ['2', '3'],
+                                    heights: {
+                                        // color_index: peso_de_movi
+                                        0: 15,
+                                        1: 4,
+                                        2: 0,
+                                        3: 0,
+                                        4: 4,
+                                        5: 5,
+                                        6: 3,
+                                    }
+                                }
+                            },
+                            characterSelected: {
                                 id: 1,
                                 name: 'Humano',
                                 icon: '👨',
-                                fieldsNotAllowed: [0], //negro - montaña
+                                fieldsNotAllowed: ['0'], //negro - montaña
                                 heights: {
                                     // color_index: peso_de_movi
                                     0: 0,
@@ -217,178 +312,223 @@
                                     4: 4,
                                     5: 5,
                                     6: 6,
-                                }
+                                },
                             },
-                            'monkey': {
-                                id: 2,
-                                name: 'Mono',
-                                icon: '🐒',
-                                fieldsNotAllowed: [0, 6], //negro - montaña
-                                heights: {
-                                    // color_index: peso_de_movi
-                                    0: 0,
-                                    1: 2,
-                                    2: 4,
-                                    3: 3,
-                                    4: 1,
-                                    5: 5,
-                                    6: 0,
-                                }
-                            },
-                            'octopus': {
-                                id: 3,
-                                name: 'Pulpo',
-                                icon: '🐙',
-                                fieldsNotAllowed: [0, 3, 6],
-                                heights: {
-                                    // color_index: peso_de_movi
-                                    0: 0,
-                                    1: 2,
-                                    2: 1,
-                                    3: 0,
-                                    4: 3,
-                                    5: 2,
-                                    6: 0,
-                                }
-                            },
-                            'sasquatch': {
-                                id: 4,
-                                name: 'Pie grande',
-                                icon: '🦶',
-                                fieldsNotAllowed: [2, 3,],
-                                heights: {
-                                    // color_index: peso_de_movi
-                                    0: 15,
-                                    1: 4,
-                                    2: 0,
-                                    3: 0,
-                                    4: 4,
-                                    5: 5,
-                                    6: 3,
-                                }
-                            }
-                        },
-                        characterSelected: {
-                            id: 1,
-                            name: 'Humano',
-                            icon: '👨',
-                            fieldsNotAllowed: [0], //negro - montaña
-                            heights: {
-                                // color_index: peso_de_movi
-                                0: 0,
-                                1: 1,
-                                2: 2,
-                                3: 3,
-                                4: 4,
-                                5: 5,
-                                6: 6,
-                            },
-                        },
-                        numberOfColumns: 0,
-                        numberOfRows: 0,
-                        startPoint: {},
-                        endPoint: {},
-                        startIcon: '🚩',
-                        // set an icon for end icon
-                        endIcon: '🏁'
-                    }
-                },
-                mounted() {
-                    this.assignMazeMatrixValue(this.mazeMatrix);
-                },
-                methods: {
-                    getDataFile() {
-                        // get the content of the file
-                        let file = this.$refs.fileInput.files[0];
-                        // get the content of the file ans show in console
-                        let reader = new FileReader();
-                        // when the file is loaded, assign the content to the mazeMatrix
-                        reader.onload = (e) => {
-                            this.assignMazeMatrixValue(e.target.result);
-                            this.changePage('selectCharacter');
-
-                        };
-                        reader.readAsText(file);
-                    },
-                    getRows: function (matrix) {
-                        // for each element in maze matriz remove the last ','
-                        matrix.forEach((element, index) => {
-                            matrix[index] = element.slice(0, -1);
-                        });
-
-                        // remove the last element of the matrix
-                        matrix.pop();
-
-                        return matrix;
-
-                    },
-                    getNumberOfRows: function (matrix) {
-                        this.numberOfRows = matrix.length;
-                    },
-                    getColumns: function (matrix) {
-                        // for each element in maze matriz separate each ','
-                        matrix.forEach((element, index) => {
-                            matrix[index] = element.split(',');
-                        });
-
-                        return matrix;
-                    },
-                    getNumberOfColumns: function (matrix) {
-                        // get the number of columns
-                        this.numberOfColumns = matrix[0].length;
-                    },
-                    parseMazeMatrix: function (matrix) {
-                        // parse the string to int
-                        return matrix.forEach((element, index) => {
-                            matrix[index] = element.map(Number);
-                        });
-                    },
-                    assignMazeMatrixValue: async function (content) {
-                        // separate the content each '\r\n' to get the rows
-                        let mazeMatrix = content.split('\r\n');
-                        // get the number of rows
-                        this.getNumberOfRows(mazeMatrix);
-                        // get the rows
-                        mazeMatrix = await this.getRows(mazeMatrix);
-                        // get the number of columns
-                        this.getNumberOfColumns(mazeMatrix);
-                        // get the columns
-                        mazeMatrix = await this.getColumns(mazeMatrix);
-
-                        this.mazeMatrix = mazeMatrix;
-                    },
-                    changePage: function (page) {
-                        this.currentPage = page;
-                    },
-                    useCharacter: function (character) {
-                        this.characterSelected = character;
-                        this.changePage('selectStart');
-                    },
-                    selectPoint: function (type, point) {
-                        if (type == 'start') {
-                            this.startPoint = point;
-                            this.changePage('selectEnd');
-                        } else {
-                            this.endPoint = point;
-                            this.changePage('showMaze');
+                            numberOfColumns: 0,
+                            numberOfRows: 0,
+                            startPoint: {},
+                            endPoint: {},
+                            startIcon: '🚩',
+                            // set an icon for end icon
+                            endIcon: '🏁',
+                            characterCoords: {}
                         }
                     },
-                },
-            })
+                    mounted() {
+                        this.assignMazeMatrixValue(this.mazeMatrix);
+                    },
+                    methods: {
+                        getDataFile() {
+                            // get the content of the file
+                            let file = this.$refs.fileInput.files[0];
+                            // get the content of the file ans show in console
+                            let reader = new FileReader();
+                            // when the file is loaded, assign the content to the mazeMatrix
+                            reader.onload = (e) => {
+                                this.assignMazeMatrixValue(e.target.result);
+                                this.changePage('selectCharacter');
 
-            app.mount('#app')
+                            };
+                            reader.readAsText(file);
+                        },
+                        getRows: function (matrix) {
+                            // for each element in maze matriz remove the last ','
+                            matrix.forEach((element, index) => {
+                                matrix[index] = element.slice(0, -1);
+                            });
 
-        </script>
+                            // remove the last element of the matrix
+                            matrix.pop();
 
+                            return matrix;
 
-        <!-- Bootstrap JavaScript Libraries -->
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
-            integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
+                        },
+                        getNumberOfRows: function (matrix) {
+                            this.numberOfRows = matrix.length;
+                        },
+                        getColumns: function (matrix) {
+                            // for each element in maze matriz separate each ','
+                            matrix.forEach((element, index) => {
+                                matrix[index] = element.split(',');
+                            });
+
+                            return matrix;
+                        },
+                        getNumberOfColumns: function (matrix) {
+                            // get the number of columns
+                            this.numberOfColumns = matrix[0].length;
+                        },
+                        parseMazeMatrix: function (matrix) {
+                            // parse the string to int
+                            return matrix.forEach((element, index) => {
+                                matrix[index] = element.map(Number);
+                            });
+                        },
+                        assignMazeMatrixValue: async function (content) {
+                            // separate the content each '\r\n' to get the rows
+                            let mazeMatrix = content.split('\r\n');
+                            // get the number of rows
+                            this.getNumberOfRows(mazeMatrix);
+                            // get the rows
+                            mazeMatrix = await this.getRows(mazeMatrix);
+                            // get the number of columns
+                            this.getNumberOfColumns(mazeMatrix);
+                            // get the columns
+                            mazeMatrix = await this.getColumns(mazeMatrix);
+
+                            this.mazeMatrix = mazeMatrix;
+                        },
+                        changePage: function (page) {
+                            this.currentPage = page;
+                        },
+                        useCharacter: function (character) {
+                            this.characterSelected = character;
+                            this.changePage('selectStart');
+                        },
+                        selectPoint: function (type, point) {
+                            if (type == 'start') {
+                                this.startPoint = point;
+                                this.characterCoords = point;
+                                this.changePage('selectEnd');
+                            } else {
+                                this.endPoint = point;
+                                this.changePage('showMaze');
+                            }
+                        },
+                        alertNoWayAllowed: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'No puedes pasar por este terreno',
+                            })
+                        },
+                        alertOutOfBorders: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'No puedes salir del laberinto',
+                            })
+                        },
+                        moveLeft: function () {
+                            // get the current position
+                            let currentRow = this.characterCoords.rowIndex;
+                            let currentCol = this.characterCoords.colIndex;
+
+                            // get the new position
+                            let newRow = currentRow;
+                            let newCol = currentCol - 1;
+
+                            // check if the new position is valid
+                            if (newCol >= 0) {
+                                // check if the new position is allowed
+                                if (!this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[newRow][newCol])) {
+                                    // update the position
+                                    this.characterCoords.rowIndex = newRow;
+                                    this.characterCoords.colIndex = newCol;
+                                } else {
+                                    this.alertNoWayAllowed();
+                                }
+                            } else {
+                                this.alertOutOfBorders();
+                            }
+                        },
+                        moveRight: function () {
+                            // get the current position
+                            let currentRow = this.characterCoords.rowIndex;
+                            let currentCol = this.characterCoords.colIndex;
+
+                            // get the new position
+                            let newRow = currentRow;
+                            let newCol = currentCol + 1;
+
+                            // check if the new position is valid
+                            if (newCol < this.numberOfColumns) {
+                                // check if the new position is allowed
+                                if (!this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[newRow][newCol])) {
+                                    // update the position
+                                    this.characterCoords.rowIndex = newRow;
+                                    this.characterCoords.colIndex = newCol;
+                                } else {
+                                    this.alertNoWayAllowed();
+                                }
+                            } else {
+                                this.alertOutOfBorders();
+                            }
+                        },
+                        moveUp: function () {
+                            // get the current position
+                            let currentRow = this.characterCoords.rowIndex;
+                            let currentCol = this.characterCoords.colIndex;
+
+                            // get the new position
+                            let newRow = currentRow - 1;
+                            let newCol = currentCol;
+
+                            // check if the new position is valid
+                            if (newRow >= 0) {
+                                // check if the new position is allowed
+                                if (!this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[newRow][newCol])) {
+                                    // update the position
+                                    this.characterCoords.rowIndex = newRow;
+                                    this.characterCoords.colIndex = newCol;
+                                } else {
+                                    this.alertNoWayAllowed();
+                                }
+                            } else {
+                                this.alertOutOfBorders();
+                            }
+                        },
+                        moveDown: function () {
+                            // get the current position
+                            let currentRow = this.characterCoords.rowIndex;
+                            let currentCol = this.characterCoords.colIndex;
+
+                            // get the new position
+                            let newRow = currentRow + 1;
+                            let newCol = currentCol;
+
+                            // check if the new position is valid
+                            if (newRow < this.numberOfRows) {
+                                // check if the new position is allowed
+                                if (!this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[newRow][newCol])) {
+                                    // update the position
+                                    this.characterCoords.rowIndex = newRow;
+                                    this.characterCoords.colIndex = newCol;
+                                } else {
+                                    this.alertNoWayAllowed();
+                                }
+                            } else {
+                                this.alertOutOfBorders();
+                            }
+                        },
+                    },
+                })
+
+                app.mount('#app')
+
             </script>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
-            integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
-            </script>
+
+            <!-- Bootstrap JavaScript Libraries -->
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+                integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+                crossorigin="anonymous">
+                </script>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+                integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz"
+                crossorigin="anonymous">
+                </script>
 
 </body>
 
