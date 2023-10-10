@@ -15,6 +15,11 @@
     <script src="https://unpkg.com/vue@next"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <style>
+        body {
+            background-color: #dddddd;
+        }
+    </style>
 
 </head>
 
@@ -51,7 +56,7 @@
             </div>
 
             <div v-if="currentPage=='selectCharacter'">
-                <h2 class="text-center">
+                <h2 class="text-center my-3">
                     Selecciona un personaje:
                 </h2>
                 <!--Show a table where the columns are button of the characters and the rows are the height of each -->
@@ -90,7 +95,7 @@
             </div>
 
             <div v-if="currentPage=='selectStart'">
-                <h2 class="text-center">
+                <h2 class="text-center my-3">
                     Selecciona la casilla de inicio de tu personaje "{{characterSelected.name}}
                     {{characterSelected.icon}}"
                 </h2>
@@ -116,11 +121,60 @@
 
             </div>
 
+            <div v-if="currentPage=='selectEnd'">
+                <h2 class="text-center my-3">
+                    Selecciona la casilla de fin de tu personaje "{{characterSelected.name}}
+                    {{characterSelected.icon}}"
+                </h2>
+
+                <!-- show the maze -->
+                <div class="container">
+                    <table class="table-responsive mx-auto">
+                        <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
+                            <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col] }"
+                                style="width: 50px; height: 40px; border: 1px solid black;">
+                                <span @click="selectPoint('end', {rowIndex,colIndex})"
+                                    style="cursor: crosshair; caret-color: red;">
+                                    <p v-if="(rowIndex == startPoint.rowIndex) && (colIndex == startPoint.colIndex)"
+                                        style="font-size: 20px;">
+                                        {{startIcon}}
+                                    </p>
+                                    <p v-else>
+                                        {{colIndex+1}}
+                                    </p>
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
             <div v-if="currentPage=='showMaze'" class="container">
+
+                <h2 class="text-center my-3">
+                    Comienza la aventura de tu personaje "{{characterSelected.name}}
+                    {{characterSelected.icon}}
+                </h2>
+
                 <table class="table-responsive mx-auto">
-                    <tr v-for="row in mazeMatrix">
-                        <td v-for="col in row" :style="{ backgroundColor: colorDictionary[col] }"
+                    <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
+                        <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col] }"
                             style="width: 50px; height: 40px; border: 1px solid black;">
+                            <span @click="selectPoint('end', {rowIndex,colIndex})"
+                                style="cursor: crosshair; caret-color: red;">
+                                <p v-if="(rowIndex == startPoint.rowIndex) && (colIndex == startPoint.colIndex)"
+                                    style="font-size: 20px;">
+                                    {{startIcon}}
+                                    {{characterSelected.icon}}
+                                </p>
+                                <p v-else-if="(rowIndex == endPoint.rowIndex) && (colIndex == endPoint.colIndex)"
+                                    style="font-size: 20px;">
+                                    {{endIcon}}
+                                </p>
+                                <p v-else>
+
+                                </p>
+                            </span>
                         </td>
                     </tr>
                 </table>
@@ -136,8 +190,8 @@
                         message: null,
                         isDisabled: false,
                         status: 'danger',
-                        currentPage: 'uploadMaze',
-                        azeMatrix: "4,4,4,1,1,1,1,1,1,1,1,1,1,4,4,\r\n4,4,4,4,4,4,1,1,1,1,4,3,4,4,4,\r\n4,4,4,2,2,4,1,4,1,1,3,3,4,1,1,\r\n4,4,2,2,2,2,1,4,1,1,3,3,1,1,1,\r\n4,4,2,2,2,2,1,4,4,1,1,3,1,1,1,\r\n4,4,4,2,2,1,1,1,1,1,1,3,3,3,3,\r\n4,4,4,0,0,0,1,1,1,1,1,3,3,3,3,\r\n4,4,4,1,0,4,4,1,1,3,3,3,3,2,2,\r\n4,4,4,1,1,4,4,0,1,3,3,3,2,2,2,\r\n4,4,1,1,1,1,0,0,0,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,2,2,2,2,2,\r\n4,4,1,4,4,1,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n",
+                        currentPage: 'selectStart',
+                        mazeMatrix: "4,4,4,1,1,1,1,1,1,1,1,1,1,4,4,\r\n4,4,4,4,4,4,1,1,1,1,4,3,4,4,4,\r\n4,4,4,2,2,4,1,4,1,1,3,3,4,1,1,\r\n4,4,2,2,2,2,1,4,1,1,3,3,1,1,1,\r\n4,4,2,2,2,2,1,4,4,1,1,3,1,1,1,\r\n4,4,4,2,2,1,1,1,1,1,1,3,3,3,3,\r\n4,4,4,0,0,0,1,1,1,1,1,3,3,3,3,\r\n4,4,4,1,0,4,4,1,1,3,3,3,3,2,2,\r\n4,4,4,1,1,4,4,0,1,3,3,3,2,2,2,\r\n4,4,1,1,1,1,0,0,0,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,3,2,2,2,2,\r\n4,4,1,1,1,1,1,1,3,3,2,2,2,2,2,\r\n4,4,1,4,4,1,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n4,4,4,4,4,4,1,3,3,3,2,2,2,2,2,\r\n",
                         //mazeMatrix: [],
                         colorDictionary: {
                             0: 'gray', //montaña
@@ -232,6 +286,11 @@
                         },
                         numberOfColumns: 0,
                         numberOfRows: 0,
+                        startPoint: {},
+                        endPoint: {},
+                        startIcon: '🚩',
+                        // set an icon for end icon
+                        endIcon: '🏁'
                     }
                 },
                 mounted() {
@@ -251,49 +310,52 @@
                         };
                         reader.readAsText(file);
                     },
-                    assignMazeMatrixValue: function (content) {
+                    getRows: function (matrix) {
+                        // for each element in maze matriz remove the last ','
+                        matrix.forEach((element, index) => {
+                            matrix[index] = element.slice(0, -1);
+                        });
+
+                        // remove the last element of the matrix
+                        matrix.pop();
+
+                        return matrix;
+
+                    },
+                    getNumberOfRows: function (matrix) {
+                        this.numberOfRows = matrix.length;
+                    },
+                    getColumns: function (matrix) {
+                        // for each element in maze matriz separate each ','
+                        matrix.forEach((element, index) => {
+                            matrix[index] = element.split(',');
+                        });
+
+                        return matrix;
+                    },
+                    getNumberOfColumns: function (matrix) {
+                        // get the number of columns
+                        this.numberOfColumns = matrix[0].length;
+                    },
+                    parseMazeMatrix: function (matrix) {
+                        // parse the string to int
+                        return matrix.forEach((element, index) => {
+                            matrix[index] = element.map(Number);
+                        });
+                    },
+                    assignMazeMatrixValue: async function (content) {
                         // separate the content each '\r\n' to get the rows
                         let mazeMatrix = content.split('\r\n');
                         // get the number of rows
-                        this.numberOfRows = mazeMatrix.length;
-                        // for each element in maze matriz remove the last ','
-                        mazeMatrix.forEach((element, index) => {
-                            mazeMatrix[index] = element.slice(0, -1);
-                        });
-
-                        // remove the last element of the mazeMatrix
-                        mazeMatrix.pop();
-
-
-                        // for each element in maze matriz separate each ','
-                        mazeMatrix.forEach((element, index) => {
-                            mazeMatrix[index] = element.split(',');
-                        });
-
+                        this.getNumberOfRows(mazeMatrix);
+                        // get the rows
+                        mazeMatrix = await this.getRows(mazeMatrix);
                         // get the number of columns
-                        this.numberOfColumns = mazeMatrix[0].length;
-
-                        // parse the string to int
-                        mazeMatrix.forEach((element, index) => {
-                            mazeMatrix[index] = element.map(Number);
-                        });
-
+                        this.getNumberOfColumns(mazeMatrix);
+                        // get the columns
+                        mazeMatrix = await this.getColumns(mazeMatrix);
 
                         this.mazeMatrix = mazeMatrix;
-                    },
-                    assignColorToMazeMatrix: function () {
-                        // split the mazeMatrix by line
-                        let mazeMatrixByLine = this.mazeMatrix.split('\n');
-                        // split the mazeMatrix by line
-                        let mazeMatrixByLineAndColumn = mazeMatrixByLine.map(line => line.split(','));
-                        // assign the color to each value of the mazeMatrix
-                        mazeMatrixByLineAndColumn.forEach((line, indexLine) => {
-                            line.forEach((value, indexColumn) => {
-                                mazeMatrixByLineAndColumn[indexLine][indexColumn] = this.colorDictionary[value];
-                            });
-                        });
-                        // assign the new mazeMatrix to the mazeMatrix
-                        this.mazeMatrix = mazeMatrixByLineAndColumn;
                     },
                     changePage: function (page) {
                         this.currentPage = page;
@@ -303,7 +365,13 @@
                         this.changePage('selectStart');
                     },
                     selectPoint: function (type, point) {
-                        console.log(type, point);
+                        if (type == 'start') {
+                            this.startPoint = point;
+                            this.changePage('selectEnd');
+                        } else {
+                            this.endPoint = point;
+                            this.changePage('showMaze');
+                        }
                     },
                 },
             })
