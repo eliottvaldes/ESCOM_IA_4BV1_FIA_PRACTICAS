@@ -169,6 +169,11 @@
                                     style="font-size: 20px;">
                                     {{endIcon}}
                                 </p>
+                                <!-- validate if rowIndex and colINdex exist in coodsVisited. if true, show a letter V -->
+                                <p v-if="coordsVisited.some(e => e.rowIndex == rowIndex && e.colIndex == colIndex) && !((rowIndex == characterCoords.rowIndex) && (colIndex == characterCoords.colIndex))"
+                                    style="font-size: 20px; color: red;">
+                                    V
+                                </p>
 
                             </span>
                         </td>
@@ -429,6 +434,7 @@
                                     this.characterCoords.rowIndex = newRow;
                                     this.characterCoords.colIndex = newCol;
                                     this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
+                                    this.markedVisited();
                                 } else {
                                     this.alertNoWayAllowed();
                                 }
@@ -453,6 +459,7 @@
                                     this.characterCoords.rowIndex = newRow;
                                     this.characterCoords.colIndex = newCol;
                                     this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
+                                    this.markedVisited();
                                 } else {
                                     this.alertNoWayAllowed();
                                 }
@@ -477,6 +484,7 @@
                                     this.characterCoords.rowIndex = newRow;
                                     this.characterCoords.colIndex = newCol;
                                     this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
+                                    this.markedVisited();
                                 } else {
                                     this.alertNoWayAllowed();
                                 }
@@ -501,6 +509,7 @@
                                     this.characterCoords.rowIndex = newRow;
                                     this.characterCoords.colIndex = newCol;
                                     this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
+                                    this.markedVisited();
                                 } else {
                                     this.alertNoWayAllowed();
                                 }
@@ -536,6 +545,9 @@
                                 total += element;
                             });
                             return total;
+                        },
+                        markedVisited: function () {
+                            this.coordsVisited.push({ ...this.characterCoords });
                         }
                     },
                     computed: {
