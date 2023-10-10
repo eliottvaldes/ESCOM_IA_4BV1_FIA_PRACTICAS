@@ -150,6 +150,33 @@
                     Comienza la aventura de tu personaje "{{characterSelected.name}}
                     {{characterSelected.icon}}"
                 </h2>
+                <!-- show btns to move -->
+                <div v-if="!mazeFinished" class="container my-4">
+                    <div class="row">
+                        <div class="col-3">
+                            <button @click="moveUp" class="btn btn-outline-dark mx-2 mb-2">
+                                <!-- set icon of up arrow -->
+                                &uarr;
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button @click="moveDown" class="btn btn-outline-dark mx-2 mb-2">
+                                &darr;
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button @click="moveLeft" class="btn btn-outline-dark mx-2 mb-2">
+                                &larr;
+                            </button>
+                        </div>
+                        <div class="col-3">
+                            <button @click="moveRight" class="btn btn-outline-dark mx-2 mb-2">
+                                &rarr;
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
                 <!-- maze -->
                 <table class="table-responsive mx-auto">
                     <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
@@ -171,7 +198,7 @@
                                 </p>
                                 <!-- validate if rowIndex and colINdex exist in coodsVisited. if true, show a letter V -->
                                 <p v-if="coordsVisited.some(e => e.rowIndex == rowIndex && e.colIndex == colIndex) && !((rowIndex == characterCoords.rowIndex) && (colIndex == characterCoords.colIndex))"
-                                    style="font-size: 20px; color: red;">
+                                    style="color: red;">
                                     V
                                 </p>
 
@@ -180,29 +207,49 @@
                     </tr>
                 </table>
                 <!-- show btns to move -->
-                <div class="container mt-5">
+                <div v-if="!mazeFinished" class="container mt-5">
                     <div class="row">
                         <div class="col-3">
-                            <button @click="moveUp" class="btn btn-outline-dark float-end">
-                                Arriba
+                            <button @click="moveUp" class="btn btn-outline-dark mx-2 mb-2">
+                                <!-- set icon of up arrow -->
+                                &uarr;
                             </button>
                         </div>
                         <div class="col-3">
-                            <button @click="moveDown" class="btn btn-outline-dark float-end">
-                                Abajo
+                            <button @click="moveDown" class="btn btn-outline-dark mx-2 mb-2">
+                                &darr;
                             </button>
                         </div>
                         <div class="col-3">
-                            <button @click="moveLeft" class="btn btn-outline-dark float-end">
-                                Izquierda
+                            <button @click="moveLeft" class="btn btn-outline-dark mx-2 mb-2">
+                                &larr;
                             </button>
                         </div>
                         <div class="col-3">
-                            <button @click="moveRight" class="btn btn-outline-dark float-end">
-                                Derecha
+                            <button @click="moveRight" class="btn btn-outline-dark mx-2 mb-2">
+                                &rarr;
                             </button>
                         </div>
 
+                    </div>
+                </div>
+                <!-- repeat maze btn -->
+                <div v-if="mazeFinished" class="container mt-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <!-- use same character -->
+                            <button @click="restart('sameChar')" class="btn btn-outline-dark mx-2 my-3">
+                                Repetir laberinto con el mismo personaje
+                            </button>
+                            <!-- use new character -->
+                            <button @click="restart('newChar')" class="btn btn-outline-dark mx-2 my-3">
+                                Repetir laberinto con otro personaje
+                            </button>
+                            <!-- load new maze file -->
+                            <button @click="restart('all')" class="btn btn-outline-dark mx-2 my-3">
+                                Cargar nuevo laberinto
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -315,11 +362,11 @@
                             startPoint: {},
                             endPoint: {},
                             startIcon: '🚩',
-                            // set an icon for end icon
                             endIcon: '🏁',
                             characterCoords: {},
                             coordsVisited: [],
                             heightsAcumulated: [],
+                            mazeFinished: false,
                         }
                     },
                     mounted() {
@@ -534,6 +581,7 @@
                                     title: '!Felicidades!',
                                     text: `Has llegado a la meta con un total de ${totalHeigth} de energía gastada`,
                                 })
+                                this.mazeFinished = true;
                             }
                         },
                         accumulateHeigth: function (value) {
