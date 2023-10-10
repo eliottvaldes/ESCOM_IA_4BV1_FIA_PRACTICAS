@@ -139,28 +139,59 @@ def mover_personaje(tecla):
     matriz[fila][columna] = PERSONAJE
     posicion_personaje = (fila, columna)
 
+#Oculta la matriz
+def ocultaMatriz():
+    for fila in range(FILA):
+        for columna in range(COLUMNA):
+            x = columna * ANCHO_CELDA
+            y = fila * ALTO_CELDA
+            if matriz[fila][columna] != PERSONAJE:
+                pygame.draw.rect(ventana, NEGRO, (x, y, ANCHO_CELDA, ALTO_CELDA))
+            else:
+                pygame.draw.rect(ventana, BLANCO, (x, y, ANCHO_CELDA, ALTO_CELDA))  # Deja el personaje visible
+                pygame.draw.circle(ventana, AZUL, (x + ANCHO_CELDA // 2, y + ALTO_CELDA // 2), ANCHO_CELDA // 2 - 2)
+    pygame.display.flip()
 
-# Bucle principa
-cont= 1
-destino=0
+#Restaura el color de las casillas adyacentes al personaje
+'''def restaurar_casillas_adyacentes(fila, columna):
+    for i in range(max(0, fila - 1), min(FILA, fila + 2)):
+        for j in range(max(0, columna - 1), min(COLUMNA, columna + 2)):
+            if not (i == fila and j == columna):
+                x = j * ANCHO_CELDA
+                y = i * ALTO_CELDA
+                if matriz[i][j] == 0:
+                    color = BLANCO
+                else:
+                    color = GRIS
+                pygame.draw.rect(ventana, color, (x, y, ANCHO_CELDA, ALTO_CELDA))
+                pygame.draw.rect(ventana, NEGRO, (x, y, ANCHO_CELDA, ALTO_CELDA), 1)'''
+
+# Bucle principal
+cont = 1
+destino = 0
 while True:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         elif evento.type == pygame.KEYDOWN:
-            if punto_inicial_seleccionado and destino==0:
+            if punto_inicial_seleccionado and destino == 0:
                 mover_personaje(evento.key)
                 # Verificar si se llegó al destino
                 if posicion_personaje == punto_final:
                     print("Llegaste a tu destino!")
-                    destino=1
+                    destino = 1
 
     # Dibujar la matriz en la ventana
     dibujar_matriz()
     # Actualizar la pantalla
     pygame.display.flip()
+
     if cont:
         puntoInicial()
         puntoFinal()
-        cont= cont-1
+        cont = cont - 1
+        ocultaMatriz()
+        # Restaurar el color original de las casillas adyacentes antes de comenzar a moverse
+        '''fila, columna = posicion_personaje
+        restaurar_casillas_adyacentes(fila, columna)'''
