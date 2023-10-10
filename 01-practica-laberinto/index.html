@@ -105,11 +105,8 @@
                     <table class="table-responsive mx-auto">
                         <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
                             <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col] }"
-                                style="width: 50px; height: 40px; border: 1px solid black;">
-                                <span @click="selectPoint('start', {rowIndex,colIndex})"
-                                    style="cursor: crosshair; caret-color: red;">
-                                    {{colIndex+1}}
-                                </span>
+                                @click="selectPoint('start', {rowIndex,colIndex})"
+                                style="width: 50px; height: 40px; border: 1px solid black; cursor: crosshair;">
                             </td>
                         </tr>
                     </table>
@@ -132,15 +129,12 @@
                     <table class="table-responsive mx-auto">
                         <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
                             <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col] }"
-                                style="width: 50px; height: 40px; border: 1px solid black;">
-                                <span @click="selectPoint('end', {rowIndex,colIndex})"
-                                    style="cursor: crosshair; caret-color: red;">
+                                @click="selectPoint('end', {rowIndex,colIndex})"
+                                style="width: 50px; height: 40px; border: 1px solid black;cursor: crosshair;">
+                                <span>
                                     <p v-if="(rowIndex == startPoint.rowIndex) && (colIndex == startPoint.colIndex)"
                                         style="font-size: 20px;">
                                         {{startIcon}}
-                                    </p>
-                                    <p v-else>
-                                        {{colIndex+1}}
                                     </p>
                                 </span>
                             </td>
@@ -154,7 +148,7 @@
                 <!-- header show maze -->
                 <h2 class="text-center my-3">
                     Comienza la aventura de tu personaje "{{characterSelected.name}}
-                    {{characterSelected.icon}}
+                    {{characterSelected.icon}}"
                 </h2>
                 <!-- maze -->
                 <table class="table-responsive mx-auto">
@@ -176,16 +170,6 @@
                                     {{endIcon}}
                                 </p>
 
-
-
-                                <p v-else>
-
-                                </p>
-
-
-                                <p v-else>
-
-                                </p>
                             </span>
                         </td>
                     </tr>
