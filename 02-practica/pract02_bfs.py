@@ -40,6 +40,24 @@ matriz = [
     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1]
 ]
 
+#Defines an auxiliar matrix with the same value as the original
+matriz_aux = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+    [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+    [0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1 ,0 ,1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1]
+]
 # Inicializar Pygame
 ventana = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Practica 2")
@@ -65,8 +83,10 @@ def dibujar_matriz():
             # Dibujar el fondo de la celda
             if matriz[fila][columna] == 0:
                 color = BLANCO
-            else:
+            if matriz[fila][columna] ==1:
                 color = GRIS
+            if matriz[fila][columna] == 2:
+                color = NEGRO
             pygame.draw.rect(ventana, color, (x, y, ANCHO_CELDA, ALTO_CELDA))
             # Dibujar el contorno de la celda
             pygame.draw.rect(ventana, NEGRO, (x, y, ANCHO_CELDA, ALTO_CELDA), 1)
@@ -122,49 +142,54 @@ def puntoFinal():
 # Función para manejar el movimiento del personaje
 def mover_personaje(tecla):
     global posicion_personaje
-    fila, columna = posicion_personaje
-    tecla= pygame.key.get_pressed()
-    if tecla[pygame.K_w] and fila > 0 and matriz[fila - 1][columna] != 1:
-        matriz[fila][columna] = 0
-        fila -= 1
-    elif tecla[pygame.K_s] and fila < FILA - 1 and matriz[fila + 1][columna] != 1:
-        matriz[fila][columna] = 0
-        fila += 1
-    elif tecla[pygame.K_a] and columna > 0 and matriz[fila][columna - 1] != 1:
-        matriz[fila][columna] = 0
-        columna -= 1
-    elif tecla[pygame.K_d] and columna < COLUMNA - 1 and matriz[fila][columna + 1] != 1:
-        matriz[fila][columna] = 0
-        columna += 1
-    matriz[fila][columna] = PERSONAJE
-    posicion_personaje = (fila, columna)
 
-#Oculta la matriz
+    fila, columna = posicion_personaje
+    tecla = pygame.key.get_pressed()
+
+    # Guardar las posiciones adyacentes antes de mover al personaje
+    restaurar_casillas_adyacentes(fila, columna)
+
+    nueva_fila, nueva_columna = fila, columna
+
+    if tecla[pygame.K_w] and fila > 0 and matriz_aux[fila - 1][columna] == 0:
+        nueva_fila -= 1
+    elif tecla[pygame.K_s] and fila < FILA - 1 and matriz_aux[fila + 1][columna] == 0:
+        nueva_fila += 1
+    elif tecla[pygame.K_a] and columna > 0 and matriz_aux[fila][columna - 1] == 0:
+        nueva_columna -= 1
+    elif tecla[pygame.K_d] and columna < COLUMNA - 1 and matriz_aux[fila][columna + 1] == 0:
+        nueva_columna += 1
+
+    # Verificar si la nueva posición es válida en la matriz original
+    if 0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and matriz[nueva_fila][nueva_columna] == 0:
+        # Actualizar la matriz original y la auxiliar
+        matriz[fila][columna] = matriz_aux[fila][columna]
+        matriz_aux[fila][columna] = 0
+
+        fila, columna = nueva_fila, nueva_columna
+        matriz_aux[fila][columna] = PERSONAJE
+        posicion_personaje = (fila, columna)
+
+        # Restaurar las casillas adyacentes en la matriz original después del movimiento
+        restaurar_casillas_adyacentes(fila, columna)
+
+#Function that hides the matrix except the character
 def ocultaMatriz():
     for fila in range(FILA):
         for columna in range(COLUMNA):
-            x = columna * ANCHO_CELDA
-            y = fila * ALTO_CELDA
             if matriz[fila][columna] != PERSONAJE:
-                pygame.draw.rect(ventana, NEGRO, (x, y, ANCHO_CELDA, ALTO_CELDA))
-            else:
-                pygame.draw.rect(ventana, BLANCO, (x, y, ANCHO_CELDA, ALTO_CELDA))  # Deja el personaje visible
-                pygame.draw.circle(ventana, AZUL, (x + ANCHO_CELDA // 2, y + ALTO_CELDA // 2), ANCHO_CELDA // 2 - 2)
-    pygame.display.flip()
+                matriz[fila][columna] = 2
 
-#Restaura el color de las casillas adyacentes al personaje
-'''def restaurar_casillas_adyacentes(fila, columna):
+# Function that shows the matrix as the character explores, replacing the values on the modified matrix with the auxiliar matrix
+def restaurar_matriz():
+    for fila in range(FILA):
+        for columna in range(COLUMNA):
+            matriz[fila][columna] = matriz_aux[fila][columna]
+
+def restaurar_casillas_adyacentes(fila, columna):
     for i in range(max(0, fila - 1), min(FILA, fila + 2)):
         for j in range(max(0, columna - 1), min(COLUMNA, columna + 2)):
-            if not (i == fila and j == columna):
-                x = j * ANCHO_CELDA
-                y = i * ALTO_CELDA
-                if matriz[i][j] == 0:
-                    color = BLANCO
-                else:
-                    color = GRIS
-                pygame.draw.rect(ventana, color, (x, y, ANCHO_CELDA, ALTO_CELDA))
-                pygame.draw.rect(ventana, NEGRO, (x, y, ANCHO_CELDA, ALTO_CELDA), 1)'''
+            matriz[i][j] = matriz_aux[i][j]
 
 # Bucle principal
 cont = 1
@@ -181,7 +206,6 @@ while True:
                 if posicion_personaje == punto_final:
                     print("Llegaste a tu destino!")
                     destino = 1
-
     # Dibujar la matriz en la ventana
     dibujar_matriz()
     # Actualizar la pantalla
@@ -190,8 +214,5 @@ while True:
     if cont:
         puntoInicial()
         puntoFinal()
-        cont = cont - 1
         ocultaMatriz()
-        # Restaurar el color original de las casillas adyacentes antes de comenzar a moverse
-        '''fila, columna = posicion_personaje
-        restaurar_casillas_adyacentes(fila, columna)'''
+        cont = cont - 1
