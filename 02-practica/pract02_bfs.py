@@ -185,7 +185,7 @@ def restaurar_matriz():
     for fila in range(FILA):
         for columna in range(COLUMNA):
             matriz[fila][columna] = matriz_aux[fila][columna]
-
+#Restaura las casillas conforme el personaje se mueve
 def restaurar_casillas_adyacentes(fila, columna):
     for i in range(max(0, fila - 1), min(FILA, fila + 2)):
         for j in range(max(0, columna - 1), min(COLUMNA, columna + 2)):
