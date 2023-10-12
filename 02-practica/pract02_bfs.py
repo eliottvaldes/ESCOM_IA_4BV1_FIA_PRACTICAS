@@ -1,5 +1,6 @@
 import pygame
 import sys
+from collections import deque
 
 # Inicializar Pygame
 pygame.init()
@@ -73,6 +74,7 @@ punto_final = None
 #variables para generar personaje
 PERSONAJE = 4
 posicion_personaje = None
+pasos=0
 
 def dibujar_matriz():
     for fila in range(FILA):
@@ -141,7 +143,7 @@ def puntoFinal():
 
 # Función para manejar el movimiento del personaje
 def mover_personaje(tecla):
-    global posicion_personaje
+    global posicion_personaje, pasos  # Agrega `pasos` aquí para que puedas modificarla
 
     fila, columna = posicion_personaje
     tecla = pygame.key.get_pressed()
@@ -170,6 +172,8 @@ def mover_personaje(tecla):
         matriz_aux[fila][columna] = PERSONAJE
         posicion_personaje = (fila, columna)
 
+        pasos = contarPasos(pasos)  # Llamada a contarPasos cada vez que el personaje se mueve
+
         # Restaurar las casillas adyacentes en la matriz original después del movimiento
         restaurar_casillas_adyacentes(fila, columna)
 
@@ -180,16 +184,59 @@ def ocultaMatriz():
             if matriz[fila][columna] != PERSONAJE:
                 matriz[fila][columna] = 2
 
-# Function that shows the matrix as the character explores, replacing the values on the modified matrix with the auxiliar matrix
-def restaurar_matriz():
-    for fila in range(FILA):
-        for columna in range(COLUMNA):
-            matriz[fila][columna] = matriz_aux[fila][columna]
 #Restaura las casillas conforme el personaje se mueve
 def restaurar_casillas_adyacentes(fila, columna):
     for i in range(max(0, fila - 1), min(FILA, fila + 2)):
         for j in range(max(0, columna - 1), min(COLUMNA, columna + 2)):
             matriz[i][j] = matriz_aux[i][j]
+
+#Cuenta los pasos que se dan
+def contarPasos(pasos):
+    pasos += 1
+    return pasos
+
+#Clase nodo para el algoritmo BFS
+'''class nodo:
+    def __init__(self, valor, fila, columna):
+        self.valor = valor
+        self.fila = fila
+        self.columna = columna
+
+# Función para encontrar la ruta utilizando BFS
+def encontrar_ruta_bfs(matriz, inicio, destino):
+    visitado = set()
+    fila, columna = inicio
+    cola = deque([(fila, columna, [])])
+
+    while cola:
+        fila, columna, ruta = cola.popleft()
+        if (fila, columna) == destino:
+            return ruta + [(fila, columna)]
+
+        for dx, dy in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
+            nueva_fila, nueva_columna = fila + dx, columna + dy
+            if (
+                0 <= nueva_fila < FILA
+                and 0 <= nueva_columna < COLUMNA
+                and matriz[nueva_fila][nueva_columna] == 0
+                and (nueva_fila, nueva_columna) not in visitado
+            ):
+                cola.append((nueva_fila, nueva_columna, ruta + [(fila, columna)]))
+                visitado.add((nueva_fila, nueva_columna))
+    return None
+
+# Encontrar la ruta desde el punto inicial hasta el punto final
+ruta = encontrar_ruta_bfs(matriz, punto_inicial, punto_final)
+
+if ruta is not None:
+    # Iterar a través de la ruta y mover al personaje automáticamente
+    for fila, columna in ruta:
+        matriz[fila][columna] = PERSONAJE
+        matriz[posicion_personaje[0]][posicion_personaje[1]] = 0
+        posicion_personaje = (fila, columna)
+        dibujar_matriz()
+        pygame.display.flip()
+        pygame.time.delay(200)  # Agregar un retraso para ver el movimiento'''
 
 # Bucle principal
 cont = 1
@@ -205,6 +252,7 @@ while True:
                 # Verificar si se llegó al destino
                 if posicion_personaje == punto_final:
                     print("Llegaste a tu destino!")
+                    print(f"Pasos dados: {pasos}")
                     destino = 1
     # Dibujar la matriz en la ventana
     dibujar_matriz()
