@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>A* Algorithm with Vue.js</title>
+    <!-- Incluye Vue.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        /* Estilo base para todas las celdas */
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #000;
+        }
+
+        /* Estilos para resaltar la ruta ideal */
+        .path {
+            background-color: yellow;
+        }
+
+        /* Estilos para celdas prohibidas (valor 0) */
+        .prohibited {
+            background-color: black;
+            color: white;
+        }
+
+        .mountain {
+            background-color: gray;
+        }
+
+        .earth {
+            background-color: #ffcba4;
+        }
+
+        .water {
+            background-color: #0abfb2;
+        }
+
+        .sand {
+            background-color: #ffaf07;
+        }
+
+        .forest {
+            background-color: #11f340;
+        }
+
+        .swamp {
+            background-color: purple;
+        }
+
+        .snow {
+            background-color: white;
+        }
+
+        /* Añade más clases de valor según sea necesario */
+    </style>
+
+</head>
+
+<body>
+    <div id="app">
+        <h1>A* Algorithm Demo</h1>
+        <button @click="findPath">Find Path</button>
+        <button @click="resetMatrix">Reset Matrix</button>
+        <table>
+            <tr v-for="(row, rowIndex) in matrix" :key="rowIndex">
+                <td v-for="(cell, colIndex) in row" :key="colIndex" :class="getCellStyle(rowIndex, colIndex)">{{ cell }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        new Vue({
+            el: "#app",
+            data: {
+                matrix: [
+                    [4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4],
+                    [4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 3, 4, 4, 4],
+                    [4, 4, 4, 2, 2, 4, 1, 4, 1, 1, 3, 3, 4, 1, 1],
+                    [4, 4, 2, 2, 2, 2, 1, 4, 1, 1, 3, 3, 1, 1, 1],
+                    [4, 4, 2, 2, 2, 2, 1, 4, 4, 1, 1, 3, 1, 1, 1],
+                    [4, 4, 4, 2, 2, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3],
+                    [4, 4, 4, 0, 0, 0, 1, 1, 1, 1, 1, 3, 3, 3, 3],
+                    [4, 4, 4, 1, 0, 4, 4, 1, 1, 3, 3, 3, 3, 2, 2],
+                    [4, 4, 4, 1, 1, 4, 4, 0, 1, 3, 3, 3, 2, 2, 2],
+                    [4, 4, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 2, 2],
+                    [4, 4, 1, 1, 1, 1, 1, 1, 3, 3, 3, 2, 2, 2, 2],
+                    [4, 4, 1, 1, 1, 1, 1, 1, 3, 3, 2, 2, 2, 2, 2],
+                    [4, 4, 1, 4, 4, 1, 1, 3, 3, 3, 2, 2, 2, 2, 2],
+                    [4, 4, 4, 4, 4, 4, 1, 3, 3, 3, 2, 2, 2, 2, 2],
+                    [4, 4, 4, 4, 4, 4, 1, 3, 3, 3, 2, 2, 2, 2, 2]
+                ],
+                characterSelected: {
+                    id: 1,
+                    name: 'Humano',
+                    icon: '👨',
+                    fieldsNotAllowed: ['0'], //negro - montaña
+                    heights: {
+                        // color_index: peso_de_movi
+                        0: 0,
+                        1: 1,
+                        2: 2,
+                        3: 3,
+                        4: 4,
+                        5: 5,
+                        6: 6,
+                    },
+                },
+                startPoint: { x: 2, y: 2 },
+                endPoint: { x: 5, y: 2 },
+                colorDictionary: {
+                    0: 'gray', //montaña
+                    1: '#ffcba4', //tierra
+                    2: '#0abfb2', //agua
+                    3: '#ffaf07', //arena
+                    4: '#11f340', //forest
+                    5: 'purple', //swamp
+                    6: 'white', //nieve
+                },
+
+            },
+            methods: {
+                isFieldAllowed(x, y) {
+                    const field = this.matrix[y][x];
+                    return !this.characterSelected.fieldsNotAllowed.includes(field.toString());
+                }
+                ,
+                calculateCost(currentNode, neighbor) {
+                    const dx = Math.abs(currentNode.x - neighbor.x);
+                    const dy = Math.abs(currentNode.y - neighbor.y);
+
+                    const heightDiff = Math.abs(
+                        this.characterSelected.heights[this.matrix[currentNode.y][currentNode.x]] -
+                        this.characterSelected.heights[this.matrix[neighbor.y][neighbor.x]]
+                    );
+
+                    // Define los costos para moverse en diferentes direcciones.
+                    // Puedes ajustar estos valores según tus necesidades.
+                    const costX = 1;
+                    const costY = 1;
+                    const costHeight = 1;
+
+                    const g = dx * costX + dy * costY + heightDiff * costHeight;
+                    return g;
+                }
+                ,
+
+                findPath() {
+                    this.resetMatrix(); // Restablece la matriz antes de encontrar la ruta
+                    const openList = [];
+                    const closedList = [];
+                    const startNode = { x: this.startPoint.x, y: this.startPoint.y, g: 0, f: 0 };
+                    openList.push(startNode);
+
+                    while (openList.length > 0) {
+                        // Encontrar el nodo con el menor valor F en la lista abierta.
+                        let currentNode = openList[0];
+                        let currentIndex = 0;
+                        openList.forEach((node, index) => {
+                            if (node.f < currentNode.f) {
+                                currentNode = node;
+                                currentIndex = index;
+                            }
+                        });
+
+                        // Mover el nodo actual a la lista cerrada.
+                        openList.splice(currentIndex, 1);
+                        closedList.push(currentNode);
+
+                        // Si hemos llegado al punto de destino, hemos encontrado la ruta.
+                        if (currentNode.x === this.endPoint.x && currentNode.y === this.endPoint.y) {
+                            const path = [];
+                            let current = currentNode;
+
+                            while (current) {
+                                path.push({ x: current.x, y: current.y });
+                                current = current.parent;
+                            }
+
+                            // Marca la ruta en la matriz
+                            path.forEach(node => {
+                                this.matrix[node.y][node.x] = 'P'; // 'P' representa la ruta ideal
+                            });
+
+                            console.log("Ruta encontrada:", path.reverse());
+                            return path.reverse();
+                        }
+
+                        // Generar los vecinos del nodo actual.
+                        const neighbors = [
+                            { x: currentNode.x + 1, y: currentNode.y },
+                            { x: currentNode.x - 1, y: currentNode.y },
+                            { x: currentNode.x, y: currentNode.y + 1 },
+                            { x: currentNode.x, y: currentNode.y - 1 },
+                        ];
+
+                        for (let i = 0; i < neighbors.length; i++) {
+                            const neighbor = neighbors[i];
+
+                            // Verificar si el vecino es válido.
+                            if (
+                                neighbor.x >= 0 &&
+                                neighbor.x < this.matrix[0].length &&
+                                neighbor.y >= 0 &&
+                                neighbor.y < this.matrix.length &&
+                                this.isFieldAllowed(neighbor.x, neighbor.y)
+                            ) {
+                                // Verificar si el vecino está en la lista cerrada.
+                                if (closedList.some((node) => node.x === neighbor.x && node.y === neighbor.y)) {
+                                    continue;
+                                }
+
+                                const g = currentNode.g + this.calculateCost(currentNode, neighbor);
+                                let newPath = false;
+
+                                // Verificar si el vecino está en la lista abierta y si este es un mejor camino.
+                                if (openList.some((node) => node.x === neighbor.x && node.y === neighbor.y)) {
+                                    const index = openList.findIndex((node) => node.x === neighbor.x && node.y === neighbor.y);
+                                    if (g < openList[index].g) {
+                                        openList[index].g = g;
+                                        newPath = true;
+                                    }
+                                } else {
+                                    neighbor.g = g;
+                                    neighbor.f = g + this.calculateCost(neighbor, this.endPoint);
+                                    neighbor.parent = currentNode;
+                                    openList.push(neighbor);
+                                    newPath = true;
+                                }
+
+                                if (newPath) {
+                                    neighbor.h = this.calculateCost(neighbor, this.endPoint);
+                                    neighbor.f = neighbor.g + neighbor.h;
+                                    neighbor.parent = currentNode;
+                                }
+                            }
+                        }
+                    }
+
+                    console.log("Ruta no encontrada.");
+                    return [];
+                }
+                ,
+
+                getCellStyle(rowIndex, colIndex) {
+                    const cellValue = this.matrix[rowIndex][colIndex];
+                    const isPath = cellValue === 'P';
+
+                    let cellClass = '';
+
+                    if (isPath) {
+                        cellClass = 'path';
+                    } else {
+                        switch (cellValue) {
+                            case 0:
+                                cellClass = 'mountain';
+                                break;
+                            case 1:
+                                cellClass = 'earth';
+                                break;
+                            case 2:
+                                cellClass = 'water';
+                                break;
+                            case 3:
+                                cellClass = 'sand';
+                                break;
+                            case 4:
+                                cellClass = 'forest';
+                                break;
+                            case 5:
+                                cellClass = 'swamp';
+                                break;
+                            case 6:
+                                cellClass = 'snow';
+                                break;
+                            default:
+                                cellClass = ''; // Sin clase CSS adicional
+                        }
+                    }
+
+                    return cellClass;
+                }
+
+
+                ,
+                resetMatrix() {
+                    this.matrix = [
+                        [4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4],
+                        [4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 3, 4, 4, 4],
+                        [4, 4, 4, 2, 2, 4, 1, 4, 1, 1, 3, 3, 4, 1, 1],
+                        [4, 4, 2, 2, 2, 2, 1, 4, 1, 1, 3, 3, 1, 1, 1],
+                        [4, 4, 2, 2, 2, 2, 1, 4, 4, 1, 1, 3, 1, 1, 1],
+                        [4, 4, 4, 2, 2, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3],
+                        [4, 4, 4, 0, 0, 0, 1, 1, 1, 1, 1, 3, 3, 3, 3],
+                        [4, 4, 4, 1, 0, 4, 4, 1, 1, 3, 3, 3, 3, 2, 2],
+                        [4, 4, 4, 1, 1, 4, 4, 0, 1, 3, 3, 3, 2, 2, 2],
+                        [4, 4, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 2, 2],
+                        [4, 4, 1, 1, 1, 1, 1, 1, 3, 3, 3, 2, 2, 2, 2],
+                        [4, 4, 1, 1, 1, 1, 1, 1, 3, 3, 2, 2, 2, 2, 2],
+                        [4, 4, 1, 4, 4, 1, 1, 3, 3, 3, 2, 2, 2, 2, 2],
+                        [4, 4, 4, 4, 4, 4, 1, 3, 3, 3, 2, 2, 2, 2, 2],
+                        [4, 4, 4, 4, 4, 4, 1, 3, 3, 3, 2, 2, 2, 2, 2]
+                    ];
+                }
+            },
+        });
+    </script>
+</body>
+
+</html>
