@@ -1,4 +1,4 @@
-i<!doctype html>
+<!doctype html>
 <html lang="en">
 
 <head>
@@ -178,8 +178,8 @@ i<!doctype html>
                 <!-- maze -->
                 <table class="table-responsive mx-auto">
                     <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
-                        <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col] }"
-                            style="width: 50px; height: 40px; border: 1px solid black; max-height: 50px;">
+                        <td v-for="col, colIndex in row"
+                            style="width: 50px; height: 40px; border: 1px solid black; max-height: 50px; background-color: black;">
                             <span @click="selectPoint('end', {rowIndex,colIndex})"
                                 style="cursor: crosshair; caret-color: red;">
                                 <p v-if="(rowIndex == characterCoords.rowIndex) && (colIndex == characterCoords.colIndex)"
@@ -201,6 +201,7 @@ i<!doctype html>
                                 </p>
                                 <!-- validate if rowIndex and colINdex exist in coodsVisited. if true, show a letter V -->
                                 <p v-if="coordsVisited.some(e => e.rowIndex == rowIndex && e.colIndex == colIndex) && !((rowIndex == characterCoords.rowIndex) && (colIndex == characterCoords.colIndex))"
+                                    :style="{ backgroundColor: colorDictionary[col] }"
                                     style="color: rgb(17, 0, 255);">
                                     V
                                 </p>
@@ -722,7 +723,10 @@ i<!doctype html>
                         if (index < path.length) {
                             this.characterCoords = { colIndex: path[index].x, rowIndex: path[index].y };
                             this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[path[index].y][path[index].x]]);
-                            this.markedVisited();
+                            // path iter is bigger than 0, marked as visited
+                            if (index > 0) {
+                                this.markedVisited();
+                            }
                             index++;
                         } else {
                             clearInterval(interval);
