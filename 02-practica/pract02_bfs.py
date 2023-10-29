@@ -141,8 +141,6 @@ def puntoFinal():
                     print(f"Punto Final: {punto_final}")
                     return punto_final
 
-
-
     # Verificar si la nueva posición es válida en la matriz original
     if 0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and matriz[nueva_fila][nueva_columna] == 0:
         # Actualizar la matriz original y la auxiliar
@@ -156,8 +154,6 @@ def puntoFinal():
         descubrir_casillas_adyacentes(fila, columna) # <-- Esta línea está correctamente colocada aquí
 
         pasos = contarPasos(pasos)  # Llamada a contarPasos cada vez que el personaje se mueve
-
-
 
 def ocultaMatriz():
     for fila in range(FILA):
@@ -187,18 +183,16 @@ class Nodo:
         self.fila = fila
         self.columna = columna
         self.padre = padre
+        self.hijos = []
 
 def imprimir_arbol_bfs(nodo):
     if nodo is None:
         return
     print(f"({nodo.fila}, {nodo.columna})")
-    for dx, dy in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
-        nueva_fila, nueva_columna = nodo.fila + dx, nodo.columna + dy
-        if 0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and matriz[nueva_fila][nueva_columna] == 0:
-            imprimir_arbol_bfs(Nodo(nueva_fila, nueva_columna, nodo))
+    for hijo in nodo.hijos:
+        imprimir_arbol_bfs(hijo)
 
 # Función BFS para encontrar la ruta más corta
-
 def bfs(inicio, destino):
     fila_inicial, columna_inicial = inicio
     fila_destino, columna_destino = destino
@@ -209,24 +203,28 @@ def bfs(inicio, destino):
 
     while cola:
         nodo_actual = cola.popleft()
-
         if (nodo_actual.fila, nodo_actual.columna) == (fila_destino, columna_destino):
             path = []
             while nodo_actual:
                 path.append((nodo_actual.fila, nodo_actual.columna))
                 nodo_actual = nodo_actual.padre
-            return path[::-1]
+            # Ahora, en lugar de simplemente devolver la ruta,
+            # devolvemos tanto la ruta como el nodo raíz del árbol BFS
+            return path[::-1], nodo_inicial
 
         for dx, dy in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
             nueva_fila, nueva_columna = nodo_actual.fila + dx, nodo_actual.columna + dy
             if (0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and
-               matriz_aux[nueva_fila][nueva_columna] == 0 and  # Usar matriz_aux aquí
-               (nueva_fila, nueva_columna) not in visitado):
+                matriz_aux[nueva_fila][nueva_columna] == 0 and
+                (nueva_fila, nueva_columna) not in visitado):
                 visitado.add((nueva_fila, nueva_columna))
                 nodo_vecino = Nodo(nueva_fila, nueva_columna, nodo_actual)
+                nodo_actual.hijos.append(nodo_vecino)
                 cola.append(nodo_vecino)
-
-    return None
+                
+    # Si no se encontró un camino, simplemente devolvemos None para el camino,
+    # pero aún devolvemos el nodo raíz para imprimir el árbol BFS
+    return None, nodo_inicial
 
 dibujar_matriz()
 pygame.display.flip()
@@ -241,7 +239,10 @@ punto_final = puntoFinal()
 ocultaMatriz()
 
 
-ruta = bfs(punto_inicial, punto_final)
+
+ruta, raiz = bfs(punto_inicial, punto_final)
+imprimir_arbol_bfs(raiz)
+
 if ruta is None:
     print("No hay una ruta válida entre el punto inicial y el punto final.")
     sys.exit()
@@ -268,6 +269,8 @@ for i in range(1, len(ruta)):
 # Imprime el total de movimientos
 print(f"Total de movimientos realizados: {contador_movimientos}")
 
+
+#Muestra el arbol generado
 indice_ruta = 1  # Comenzamos en 1 ya que el punto inicial ya está en la matriz
 while True:
     for evento in pygame.event.get():
