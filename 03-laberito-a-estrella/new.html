@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A* Algorithm with Vue.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        .maze {
+            display: inline-block;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .cell {
+            width: 30px;
+            height: 30px;
+            border: 1px solid black;
+        }
+
+        .start {
+            background-color: green;
+        }
+
+        .end {
+            background-color: red;
+        }
+
+        .path {
+            background-color: yellow;    
+        }
+    </style>
+</head>
+
+<body>
+    <h1>
+        A* algorithm 
+    </h1>
+    <div id="app">
+        <div class="maze">
+            <div class="row" v-for="(row, y) in matrix" :key="y">
+                <div class="cell" v-for="(cell, x) in row" :key="x"
+                    :style="{ backgroundColor: getColor(cell), borderColor: getBorderColor(x, y) }"
+                    style="border: solid 2px ;"></div>
+            </div>
+        </div>
+        <button @click="findPath">Find Path</button>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                matrix: [
+                    [4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4],
+                    [4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 3, 4, 4, 4],
+                    [4, 4, 4, 2, 2, 4, 1, 4, 1, 1, 3, 3, 4, 1, 1],
+                    [4, 4, 2, 2, 2, 2, 1, 4, 1, 1, 3, 3, 1, 1, 1],
+                    [4, 4, 2, 2, 2, 2, 1, 4, 4, 1, 1, 3, 1, 1, 1],
+                    [4, 4, 4, 2, 2, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3],
+                    [4, 4, 4, 0, 0, 0, 1, 1, 1, 1, 1, 3, 3, 3, 3],
+                    [4, 4, 4, 1, 0, 4, 4, 1, 1, 3, 3, 3, 3, 2, 2],
+                    [4, 4, 4, 1, 1, 4, 4, 0, 1, 3, 3, 3, 2, 2, 2],
+                    [4, 4, 1, 1, 1, 1, 0, 0, 0, 3, 3, 2, 2, 2, 2],
+                    [4, 4, 1, 1, 1, 1, 1, 1, 3, 3, 3, 2, 2, 2, 2],
+                    [4, 4, 1, 1, 1, 1, 1, 1, 3, 3, 2, 2, 2, 2, 2],
+                    [4, 4, 1, 4, 4, 1, 1, 3, 3, 3, 2, 2, 2, 2, 2],
+                    [4, 4, 4, 4, 4, 4, 1, 3, 3, 3, 2, 2, 2, 2, 2],
+                    [4, 4, 4, 4, 4, 4, 1, 3, 3, 3, 2, 2, 2, 2, 2]
+                ],
+                characterSelected: {
+                    id: 3,
+                    name: 'Pulpo',
+                    icon: '🐙',
+                    fieldsNotAllowed: ['0', '3', '6'],
+                    heights: {
+                        // color_index: peso_de_cada movimiento
+                        0: 0,
+                        1: 2,
+                        2: 1,
+                        3: 0,
+                        4: 3,
+                        5: 2,
+                        6: 0,
+                    }
+
+                },
+                startPoint: { x: 1, y: 1 },
+                endPoint: { x: 5, y: 7 },
+                colorDictionary: {
+                    0: 'gray', //montaña
+                    1: '#ffcba4', //tierra
+                    2: '#0abfb2', //agua
+                    3: '#ffaf07', //arena
+                    4: '#11f340', //forest
+                    5: 'purple', //swamp
+                    6: 'white', //nieve
+                },
+                path: [],
+            },
+            computed: {
+                maze() {
+                    // Convert matrix indices to colors using the color dictionary
+                    return this.matrix.map(row => row.map(cell => this.colorDictionary[cell]));
+                },
+            },
+            methods: {
+                getColor(value) {
+                    return this.colorDictionary[value];
+                },
+                getBorderColor(x, y) {
+                    const pointString = `${x},${y}`;
+                    const isStart = this.startPoint.x === x && this.startPoint.y === y;
+                    const isEnd = this.endPoint.x === x && this.endPoint.y === y;
+                    const isPath = this.path.some(point => `${point.x},${point.y}` === pointString);
+
+                    if (isStart) {
+                        return 'red';
+                    } else if (isEnd) {
+                        return 'red';
+                    } else if (isPath) {
+                        return 'yellow';
+                    } else {
+                        return 'black';
+                    }
+                },
+                isPath(x, y) {
+                    // Check if { x, y } is in the path
+                    return this.path.some(point => point.x === x && point.y === y);
+                },
+                getPathSymbol(x, y) {
+                    // Place a symbol or character for the path
+                    if (this.isPath(x, y)) return '•';
+                    if (x === this.startPoint.x && y === this.startPoint.y) return 'S';
+                    if (x === this.endPoint.x && y === this.endPoint.y) return 'E';
+                    return '';
+                },
+                // Estimación heurística para el costo del camino (distancia de Manhattan)
+                heuristic(a, b) {
+                    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+                },
+                // Encuentra vecinos accesibles para el nodo actual
+                neighbors(node) {
+                    const dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+                    const results = [];
+                    for (let dir of dirs) {
+                        const neighbor = { x: node.x + dir[0], y: node.y + dir[1] };
+                        if (neighbor.x >= 0 && neighbor.x < this.matrix[0].length &&
+                            neighbor.y >= 0 && neighbor.y < this.matrix.length &&
+                            !this.characterSelected.fieldsNotAllowed.includes(String(this.matrix[neighbor.y][neighbor.x]))) {
+                            results.push(neighbor);
+                        }
+                    }
+                    return results;
+                },
+                // Calcula el costo de moverse de un nodo a otro
+                cost(fromNode, toNode) {
+                    const toNodeValue = this.matrix[toNode.y][toNode.x];
+                    return this.characterSelected.heights[toNodeValue];
+                },
+                // Implementación de la función findPath utilizando el algoritmo A*
+                findPath() {
+                    let openSet = [this.startPoint];
+                    const cameFrom = new Map();
+                    const gScore = {};
+                    const fScore = {};
+
+                    // Inicializar scores con Infinity
+                    for (let y = 0; y < this.matrix.length; y++) {
+                        for (let x = 0; x < this.matrix[y].length; x++) {
+                            gScore[`${x},${y}`] = Infinity;
+                            fScore[`${x},${y}`] = Infinity;
+                        }
+                    }
+
+                    gScore[`${this.startPoint.x},${this.startPoint.y}`] = 0;
+                    fScore[`${this.startPoint.x},${this.startPoint.y}`] = this.heuristic(this.startPoint, this.endPoint);
+
+                    while (openSet.length > 0) {
+                        let current = openSet.reduce((a, b) => fScore[`${a.x},${a.y}`] < fScore[`${b.x},${b.y}`] ? a : b);
+
+                        if (current.x === this.endPoint.x && current.y === this.endPoint.y) {
+                            this.path = [];
+                            while (current) {
+                                this.path.push(current);
+                                current = cameFrom.get(`${current.x},${current.y}`);
+                            }
+                            this.path.reverse();
+                            return; // Path has been found
+                        }
+
+                        openSet = openSet.filter(item => item !== current);
+                        let neighbors = this.neighbors(current);
+
+                        for (let neighbor of neighbors) {
+                            const tentative_gScore = gScore[`${current.x},${current.y}`] + this.cost(current, neighbor);
+                            if (tentative_gScore < gScore[`${neighbor.x},${neighbor.y}`]) {
+                                cameFrom.set(`${neighbor.x},${neighbor.y}`, current);
+                                gScore[`${neighbor.x},${neighbor.y}`] = tentative_gScore;
+                                fScore[`${neighbor.x},${neighbor.y}`] = tentative_gScore + this.heuristic(neighbor, this.endPoint);
+                                if (!openSet.some(item => item.x === neighbor.x && item.y === neighbor.y)) {
+                                    openSet.push(neighbor);
+                                }
+                            }
+                        }
+                    }
+
+                    // No path was found
+                    this.path = [];
+                    console.log("No path found");
+                }
+                ,
+
+            }
+        });
+    </script>
+</body>
+
+</html>
