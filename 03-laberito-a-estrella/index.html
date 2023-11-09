@@ -112,11 +112,11 @@
                 <!-- show the maze -->
                 <div class="container">
                     <table class="table-responsive mx-auto">
-                        <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
-                            <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col]}"
-                                @click="selectPoint('start', {rowIndex,colIndex})"
+                        <tr v-for="row, y in mazeMatrix" :id="y">
+                            <td v-for="col, x in row" :style="{ backgroundColor: colorDictionary[col]}"
+                                @click="selectPoint('start', {y,x})"
                                 style="width: 50px; height: 40px; border: 1px solid black; cursor: crosshair;">
-                                <!-- validate if rowIndex and colIndex is in a fieldNotAllowed and set a 'X' -->
+                                <!-- validate if y and x is in a fieldNotAllowed and set a 'X' -->
                                 <p v-if="characterSelected.fieldsNotAllowed.includes(col)"
                                     style="font-size: 20px; color: red; ">
                                     X
@@ -142,17 +142,16 @@
                 <!-- show the maze -->
                 <div class="container">
                     <table class="table-responsive mx-auto">
-                        <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
-                            <td v-for="col, colIndex in row" :style="{ backgroundColor: colorDictionary[col] }"
-                                @click="selectPoint('end', {rowIndex,colIndex})"
+                        <tr v-for="row, y in mazeMatrix" :id="y">
+                            <td v-for="col, x in row" :style="{ backgroundColor: colorDictionary[col] }"
+                                @click="selectPoint('end', {y,x})"
                                 style="width: 50px; height: 40px; border: 1px solid black;cursor: crosshair;">
                                 <span>
-                                    <p v-if="(rowIndex == startPoint.rowIndex) && (colIndex == startPoint.colIndex)"
-                                        style="font-size: 20px;">
+                                    <p v-if="(y == startPoint.y) && (x == startPoint.x)" style="font-size: 20px;">
                                         {{startIcon}}
                                     </p>
                                 </span>
-                                <!-- validate if rowIndex and colIndex is in a fieldNotAllowed and set a 'X' -->
+                                <!-- validate if y and x is in a fieldNotAllowed and set a 'X' -->
                                 <p v-if="characterSelected.fieldsNotAllowed.includes(col)"
                                     style="font-size: 20px; color: red; ">
                                     X
@@ -177,32 +176,27 @@
 
                 <!-- maze -->
                 <table class="table-responsive mx-auto">
-                    <tr v-for="row, rowIndex in mazeMatrix" :id="rowIndex">
-                        <td v-for="col, colIndex in row"
-                            style="width: 50px; height: 40px; border: 1px solid black; max-height: 50px; background-color: black;">
-                            <span @click="selectPoint('end', {rowIndex,colIndex})"
-                                style="cursor: crosshair; caret-color: red;">
-                                <p v-if="(rowIndex == characterCoords.rowIndex) && (colIndex == characterCoords.colIndex)"
-                                    style="font-size: 20px;">
+                    <tr v-for="row, y in mazeMatrix" :id="y">
+                        <td v-for="col, x in row"
+                            style="width: 50px; height: 40px; border: 1px solid black; max-height: 50px; background-color: black; border: solid 1px white;">
+                            <span @click="selectPoint('end', {y,x})" style="cursor: crosshair; caret-color: red;">
+                                <p v-if="(y == characterCoords.y) && (x == characterCoords.x)" style="font-size: 20px;">
                                     {{characterSelected.icon}}
                                 </p>
-                                <p v-if="(rowIndex == startPoint.rowIndex) && (colIndex == startPoint.colIndex)"
-                                    style="font-size: 20px;">
+                                <p v-if="(y == startPoint.y) && (x == startPoint.x)" style="font-size: 20px;">
                                     {{startIcon}}
                                 </p>
-                                <p v-if="(rowIndex == endPoint.rowIndex) && (colIndex == endPoint.colIndex)"
-                                    style="font-size: 20px;">
+                                <p v-if="(y == endPoint.y) && (x == endPoint.x)" style="font-size: 20px;">
                                     {{endIcon}}
                                 </p>
-                                <!-- validate if rowIndex and colIndex is in a fieldNotAllowed and set a 'X' -->
+                                <!-- validate if y and x is in a fieldNotAllowed and set a 'X' -->
                                 <p v-if="characterSelected.fieldsNotAllowed.includes(col)"
                                     style="font-size: 20px; color: red;">
                                     X
                                 </p>
-                                <!-- validate if rowIndex and colINdex exist in coodsVisited. if true, show a letter V -->
-                                <p v-if="coordsVisited.some(e => e.rowIndex == rowIndex && e.colIndex == colIndex) && !((rowIndex == characterCoords.rowIndex) && (colIndex == characterCoords.colIndex))"
-                                    :style="{ backgroundColor: colorDictionary[col] }"
-                                    style="color: rgb(17, 0, 255);">
+                                <!-- validate if y and colINdex exist in coodsVisited. if true, show a letter V -->
+                                <p v-if="coordsVisited.some(e => e.y == y && e.x == x) && !((y == characterCoords.y) && (x == characterCoords.x))"
+                                    :style="{ backgroundColor: colorDictionary[col] }" style="color: rgb(17, 0, 255);">
                                     V
                                 </p>
 
@@ -326,35 +320,43 @@
                         }
                     },
                     characterSelected: {
-                        id: 1,
-                        name: 'Humano',
-                        icon: '👨',
-                        fieldsNotAllowed: ['0'], //negro - montaña
+                        id: 3,
+                        name: 'Pulpo',
+                        icon: '🐙',
+                        fieldsNotAllowed: ['0', '3', '6'],
                         heights: {
                             // color_index: peso_de_movi
                             0: 0,
-                            1: 1,
-                            2: 2,
-                            3: 3,
-                            4: 4,
-                            5: 5,
-                            6: 6,
+                            1: 2,
+                            2: 1,
+                            3: 0,
+                            4: 3,
+                            5: 2,
+                            6: 0,
                         },
+
                     },
                     numberOfColumns: 0,
                     numberOfRows: 0,
-                    startPoint: {},
-                    endPoint: {},
+                    startPoint: { x: 1, y: 1 },
+                    endPoint: { x: 5, y: 7 },
                     startIcon: '🚩',
                     endIcon: '🏁',
                     characterCoords: {},
                     coordsVisited: [],
                     heightsAcumulated: [],
                     mazeFinished: false,
+                    path: [],
                 }
             },
             mounted() {
                 this.assignMazeMatrixValue(this.mazeMatrix);
+            },
+            computed: {
+                maze() {
+                    // Convert mazeMatrix indices to colors using the color dictionary
+                    return this.mazeMatrix.map(row => row.map(cell => this.colorDictionary[cell]));
+                },
             },
             methods: {
                 getDataFile() {
@@ -426,7 +428,7 @@
                 },
                 selectPoint: function (type, point) {
                     // validate if the point is not in the fieldsNotAllowed
-                    if (this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[point.rowIndex][point.colIndex])) {
+                    if (this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[point.y][point.x])) {
                         this.alertNoWayAllowed();
                         return;
                     }
@@ -455,8 +457,8 @@
                 },
                 moveLeft: function () {
                     // get the current position
-                    let currentRow = this.characterCoords.rowIndex;
-                    let currentCol = this.characterCoords.colIndex;
+                    let currentRow = this.characterCoords.y;
+                    let currentCol = this.characterCoords.x;
 
                     // get the new position
                     let newRow = currentRow;
@@ -467,8 +469,8 @@
                         // check if the new position is allowed
                         if (!this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[newRow][newCol])) {
                             // update the position
-                            this.characterCoords.rowIndex = newRow;
-                            this.characterCoords.colIndex = newCol;
+                            this.characterCoords.y = newRow;
+                            this.characterCoords.x = newCol;
                             this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
                             this.markedVisited();
                         } else {
@@ -480,8 +482,8 @@
                 },
                 moveRight: function () {
                     // get the current position
-                    let currentRow = this.characterCoords.rowIndex;
-                    let currentCol = this.characterCoords.colIndex;
+                    let currentRow = this.characterCoords.y;
+                    let currentCol = this.characterCoords.x;
 
                     // get the new position
                     let newRow = currentRow;
@@ -492,8 +494,8 @@
                         // check if the new position is allowed
                         if (!this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[newRow][newCol])) {
                             // update the position
-                            this.characterCoords.rowIndex = newRow;
-                            this.characterCoords.colIndex = newCol;
+                            this.characterCoords.y = newRow;
+                            this.characterCoords.x = newCol;
                             this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
                             this.markedVisited();
                         } else {
@@ -505,8 +507,8 @@
                 },
                 moveUp: function () {
                     // get the current position
-                    let currentRow = this.characterCoords.rowIndex;
-                    let currentCol = this.characterCoords.colIndex;
+                    let currentRow = this.characterCoords.y;
+                    let currentCol = this.characterCoords.x;
 
                     // get the new position
                     let newRow = currentRow - 1;
@@ -517,8 +519,8 @@
                         // check if the new position is allowed
                         if (!this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[newRow][newCol])) {
                             // update the position
-                            this.characterCoords.rowIndex = newRow;
-                            this.characterCoords.colIndex = newCol;
+                            this.characterCoords.y = newRow;
+                            this.characterCoords.x = newCol;
                             this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
                             this.markedVisited();
                         } else {
@@ -530,8 +532,8 @@
                 },
                 moveDown: function () {
                     // get the current position
-                    let currentRow = this.characterCoords.rowIndex;
-                    let currentCol = this.characterCoords.colIndex;
+                    let currentRow = this.characterCoords.y;
+                    let currentCol = this.characterCoords.x;
 
                     // get the new position
                     let newRow = currentRow + 1;
@@ -542,8 +544,8 @@
                         // check if the new position is allowed
                         if (!this.characterSelected.fieldsNotAllowed.includes(this.mazeMatrix[newRow][newCol])) {
                             // update the position
-                            this.characterCoords.rowIndex = newRow;
-                            this.characterCoords.colIndex = newCol;
+                            this.characterCoords.y = newRow;
+                            this.characterCoords.x = newCol;
                             this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[newRow][newCol]]);
                             this.markedVisited();
                         } else {
@@ -555,15 +557,15 @@
                 },
                 validateUserEnd: function () {
                     // get the current position
-                    let currentRow = this.characterCoords.rowIndex;
-                    let currentCol = this.characterCoords.colIndex;
+                    let currentRow = this.characterCoords.y;
+                    let currentCol = this.characterCoords.x;
 
                     // get the new position
                     let newRow = currentRow;
                     let newCol = currentCol;
 
                     // check if the new position is valid
-                    if ((newRow == this.endPoint.rowIndex) && (newCol == this.endPoint.colIndex)) {
+                    if ((newRow == this.endPoint.y) && (newCol == this.endPoint.x)) {
                         const totalHeigth = this.calculateTotalHeigth();
                         Swal.fire({
                             icon: 'success',
@@ -590,138 +592,102 @@
 
                 }
                 ,
-                isFieldAllowed: function (x, y) {
-                    const field = this.mazeMatrix[y][x];
-                    return !this.characterSelected.fieldsNotAllowed.includes(field.toString());
+                // Estimación heurística para el costo del camino (distancia de Manhattan)
+                heuristic(a, b) {
+                    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
                 }
                 ,
-
-                calculateCost: function (currentNode, neighbor) {
-                    const dx = Math.abs(currentNode.x - neighbor.x);
-                    const dy = Math.abs(currentNode.y - neighbor.y);
-
-                    const heightDiff = Math.abs(
-                        this.characterSelected.heights[this.mazeMatrix[currentNode.y][currentNode.x]] -
-                        this.characterSelected.heights[this.mazeMatrix[neighbor.y][neighbor.x]]
-                    );
-
-                    // Define los costos para moverse en diferentes direcciones.
-                    // Puedes ajustar estos valores según tus necesidades.
-                    const costX = 1;
-                    const costY = 1;
-                    const costHeight = 1;
-
-                    const g = dx * costX + dy * costY + heightDiff * costHeight;
-                    return g;
+                // Encuentra vecinos accesibles para el nodo actual
+                neighbors(node) {
+                    const dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+                    const results = [];
+                    for (let dir of dirs) {
+                        const neighbor = { x: node.x + dir[0], y: node.y + dir[1] };
+                        if (neighbor.x >= 0 && neighbor.x < this.mazeMatrix[0].length &&
+                            neighbor.y >= 0 && neighbor.y < this.mazeMatrix.length &&
+                            !this.characterSelected.fieldsNotAllowed.includes(String(this.mazeMatrix[neighbor.y][neighbor.x]))) {
+                            results.push(neighbor);
+                        }
+                    }
+                    return results;
                 }
                 ,
-
+                // Calcula el costo de moverse de un nodo a otro
+                cost(fromNode, toNode) {
+                    const toNodeValue = this.mazeMatrix[toNode.y][toNode.x];
+                    return this.characterSelected.heights[toNodeValue];
+                }
+                ,
+                // Implementación de la función findPath utilizando el algoritmo A*
                 findRoute() {
-                    const openList = [];
-                    const closedList = [];
-                    const startNode = { x: this.startPoint.colIndex, y: this.startPoint.rowIndex, g: 0, f: 0 };
-                    openList.push(startNode);
+                    let openSet = [this.startPoint];
+                    const cameFrom = new Map();
+                    const gScore = {};
+                    const fScore = {};
 
-                    while (openList.length > 0) {
-                        // Encontrar el nodo con el menor valor F en la lista abierta.
-                        let currentNode = openList[0];
-                        let currentIndex = 0;
-                        openList.forEach((node, index) => {
-                            if (node.f < currentNode.f) {
-                                currentNode = node;
-                                currentIndex = index;
-                            }
-                        });
+                    // Inicializar scores con Infinity
+                    for (let y = 0; y < this.mazeMatrix.length; y++) {
+                        for (let x = 0; x < this.mazeMatrix[y].length; x++) {
+                            gScore[`${x},${y}`] = Infinity;
+                            fScore[`${x},${y}`] = Infinity;
+                        }
+                    }
 
-                        // Mover el nodo actual a la lista cerrada.
-                        openList.splice(currentIndex, 1);
-                        closedList.push(currentNode);
+                    gScore[`${this.startPoint.x},${this.startPoint.y}`] = 0;
+                    fScore[`${this.startPoint.x},${this.startPoint.y}`] = this.heuristic(this.startPoint, this.endPoint);
 
-                        // Si hemos llegado al punto de destino, hemos encontrado la ruta.
-                        if (currentNode.x === this.endPoint.colIndex && currentNode.y === this.endPoint.rowIndex) {
-                            const path = [];
-                            let current = currentNode;
-
+                    while (openSet.length > 0) {
+                        let current = openSet.reduce((a, b) => fScore[`${a.x},${a.y}`] < fScore[`${b.x},${b.y}`] ? a : b);
+                        if (current.x === this.endPoint.x && current.y === this.endPoint.y) {
+                            this.path = [];
                             while (current) {
-                                path.push({ x: current.x, y: current.y });
-                                current = current.parent;
+                                this.path.push(current);
+                                current = cameFrom.get(`${current.x},${current.y}`);
                             }
-
-                            return { ok: true, path: path }
+                            // Path has been found
+                            this.path.reverse();
+                            return {
+                                ok: true,
+                                path: this.path
+                            }
                         }
 
-                        // Generar los vecinos del nodo actual.
-                        const neighbors = [
-                            { x: currentNode.x + 1, y: currentNode.y },
-                            { x: currentNode.x - 1, y: currentNode.y },
-                            { x: currentNode.x, y: currentNode.y + 1 },
-                            { x: currentNode.x, y: currentNode.y - 1 },
-                        ];
+                        openSet = openSet.filter(item => item !== current);
+                        let neighbors = this.neighbors(current);
 
-                        for (let i = 0; i < neighbors.length; i++) {
-                            const neighbor = neighbors[i];
-
-                            // Verificar si el vecino es válido.
-                            if (
-                                neighbor.x >= 0 &&
-                                neighbor.x < this.mazeMatrix[0].length &&
-                                neighbor.y >= 0 &&
-                                neighbor.y < this.mazeMatrix.length &&
-                                this.isFieldAllowed(neighbor.x, neighbor.y)
-                            ) {
-                                // Verificar si el vecino está en la lista cerrada.
-                                if (closedList.some((node) => node.x === neighbor.x && node.y === neighbor.y)) {
-                                    continue;
-                                }
-
-                                const g = currentNode.g + this.calculateCost(currentNode, neighbor);
-                                let newPath = false;
-
-                                // Verificar si el vecino está en la lista abierta y si este es un mejor camino.
-                                if (openList.some((node) => node.x === neighbor.x && node.y === neighbor.y)) {
-                                    const index = openList.findIndex((node) => node.x === neighbor.x && node.y === neighbor.y);
-                                    if (g < openList[index].g) {
-                                        openList[index].g = g;
-                                        newPath = true;
-                                    }
-                                } else {
-                                    neighbor.g = g;
-                                    const endPointCoords = { x: this.endPoint.colIndex, y: this.endPoint.rowIndex };
-                                    neighbor.f = g + this.calculateCost(neighbor, endPointCoords);
-                                    neighbor.parent = currentNode;
-                                    openList.push(neighbor);
-                                    newPath = true;
-                                }
-
-                                if (newPath) {
-                                    const endPointCoords = { x: this.endPoint.colIndex, y: this.endPoint.rowIndex };
-                                    neighbor.h = this.calculateCost(neighbor, endPointCoords);
-                                    neighbor.f = neighbor.g + neighbor.h;
-                                    neighbor.parent = currentNode;
+                        for (let neighbor of neighbors) {
+                            const tentative_gScore = gScore[`${current.x},${current.y}`] + this.cost(current, neighbor);
+                            if (tentative_gScore < gScore[`${neighbor.x},${neighbor.y}`]) {
+                                cameFrom.set(`${neighbor.x},${neighbor.y}`, current);
+                                gScore[`${neighbor.x},${neighbor.y}`] = tentative_gScore;
+                                fScore[`${neighbor.x},${neighbor.y}`] = tentative_gScore + this.heuristic(neighbor, this.endPoint);
+                                if (!openSet.some(item => item.x === neighbor.x && item.y === neighbor.y)) {
+                                    openSet.push(neighbor);
                                 }
                             }
                         }
                     }
-
-                    return { ok: false, path: [] }
+                    // No path was found
+                    this.path = [];
+                    return {
+                        ok: false,
+                        path: []
+                    }
                 }
                 ,
-
                 findPath: function () {
                     const { ok, path } = this.findRoute();
                     if (!ok) {
                         this.alertNoWayAllowed();
                     }
-                    this.moveCharacter(path.reverse());
-
+                    this.moveCharacter(path);
                 }
                 ,
-
                 moveCharacter: function (path) {
                     let index = 0;
                     const interval = setInterval(() => {
                         if (index < path.length) {
-                            this.characterCoords = { colIndex: path[index].x, rowIndex: path[index].y };
+                            this.characterCoords = { x: path[index].x, y: path[index].y };
                             this.accumulateHeigth(this.characterSelected.heights[this.mazeMatrix[path[index].y][path[index].x]]);
                             // path iter is bigger than 0, marked as visited
                             if (index > 0) {
@@ -736,10 +702,10 @@
 
             },
             watch: {
-                'characterCoords.rowIndex': function () {
+                'characterCoords.y': function () {
                     this.validateUserEnd();
                 },
-                'characterCoords.colIndex': function () {
+                'characterCoords.x': function () {
                     this.validateUserEnd();
                 }
             }
