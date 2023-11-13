@@ -205,6 +205,10 @@
                     </tr>
                 </table>
 
+                <br>
+                
+                <div id="fullPath"></div>    
+
                 <button @click="findPath()" class="btn btn-outline-dark m-3">
                     Obtener ruta ideal con A*
                 </button>
@@ -347,6 +351,7 @@
                     heightsAcumulated: [],
                     mazeFinished: false,
                     path: [],
+                    fullPath: [],
                 }
             },
             mounted() {
@@ -638,6 +643,7 @@
 
                     while (openSet.length > 0) {
                         let current = openSet.reduce((a, b) => fScore[`${a.x},${a.y}`] < fScore[`${b.x},${b.y}`] ? a : b);
+                        this.fullPath.push(current);                        
                         if (current.x === this.endPoint.x && current.y === this.endPoint.y) {
                             this.path = [];
                             while (current) {
@@ -681,6 +687,7 @@
                         this.alertNoWayAllowed();
                     }
                     this.moveCharacter(path);
+                    this.showFullPath();
                 }
                 ,
                 moveCharacter: function (path) {
@@ -698,6 +705,11 @@
                             clearInterval(interval);
                         }
                     }, 500);
+                },
+                showFullPath: function(){
+                    // show the content of the fullPath in the html element div#fullPath
+                    let fullPath = document.getElementById('fullPath');
+                    fullPath.innerHTML = JSON.stringify(this.fullPath);                    
                 }
 
             },
