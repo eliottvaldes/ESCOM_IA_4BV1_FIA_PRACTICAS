@@ -189,15 +189,23 @@
                                 <p v-if="(y == endPoint.y) && (x == endPoint.x)" style="font-size: 20px;">
                                     {{endIcon}}
                                 </p>
-                                <!-- validate if y and x is in a fieldNotAllowed and set a 'X' -->
-                                <p v-if="characterSelected.fieldsNotAllowed.includes(col)"
-                                    style="font-size: 20px; color: red;">
-                                    X
+
+                                <!-- validate if rowIndex and ColIndex are in mappedNotAllowed, if true show a letter x -->
+                                <p v-if="mappedNotAllowed.some(e => e.y == y && e.x == x) && !((y == characterCoords.y) && (x == characterCoords.x))"
+                                    :style="{ backgroundColor: colorDictionary[col] }" style="color: red;">
+                                    x
                                 </p>
+
                                 <!-- validate if y and colINdex exist in coodsVisited. if true, show a letter V -->
                                 <p v-if="coordsVisited.some(e => e.y == y && e.x == x) && !((y == characterCoords.y) && (x == characterCoords.x))"
                                     :style="{ backgroundColor: colorDictionary[col] }" style="color: rgb(17, 0, 255);">
-                                    V
+                                    Cr
+                                </p>
+
+                                <!-- validate if rowIndex and ColIndex are in fullPath. if true show a letter H -->
+                                <p v-if="fullPath.some(e => e.y == y && e.x == x) && !((y == characterCoords.y) && (x == characterCoords.x)) && !coordsVisited.some(e => e.y == y && e.x == x)"
+                                    :style="{ backgroundColor: colorDictionary[col] }" style="color: rgb(17, 0, 255);">
+                                    o
                                 </p>
 
                             </span>
@@ -206,8 +214,8 @@
                 </table>
 
                 <br>
-                
-                <div id="fullPath"></div>    
+
+                <div id="fullPath"></div>
 
                 <button @click="findPath()" class="btn btn-outline-dark m-3">
                     Obtener ruta ideal con A*
@@ -352,6 +360,8 @@
                     mazeFinished: false,
                     path: [],
                     fullPath: [],
+                    mappedNotAllowedTmp: [],
+                    mappedNotAllowed: [],
                 }
             },
             mounted() {
@@ -610,8 +620,14 @@
                         const neighbor = { x: node.x + dir[0], y: node.y + dir[1] };
                         if (neighbor.x >= 0 && neighbor.x < this.mazeMatrix[0].length &&
                             neighbor.y >= 0 && neighbor.y < this.mazeMatrix.length &&
-                            !this.characterSelected.fieldsNotAllowed.includes(String(this.mazeMatrix[neighbor.y][neighbor.x]))) {
+                            !this.characterSelected.fieldsNotAllowed.includes(String(this.mazeMatrix[neighbor.y][neighbor.x]))
+                        ) {
                             results.push(neighbor);
+                        }
+                        if (neighbor.x >= 0 && neighbor.x < this.mazeMatrix[0].length &&
+                            neighbor.y >= 0 && neighbor.y < this.mazeMatrix.length &&
+                            this.characterSelected.fieldsNotAllowed.includes(String(this.mazeMatrix[neighbor.y][neighbor.x]))) {
+                            this.mappedNotAllowedTmp.push(neighbor);
                         }
                     }
                     return results;
@@ -643,7 +659,7 @@
 
                     while (openSet.length > 0) {
                         let current = openSet.reduce((a, b) => fScore[`${a.x},${a.y}`] < fScore[`${b.x},${b.y}`] ? a : b);
-                        this.fullPath.push(current);                        
+                        this.fullPath.push(current);
                         if (current.x === this.endPoint.x && current.y === this.endPoint.y) {
                             this.path = [];
                             while (current) {
@@ -688,6 +704,7 @@
                     }
                     this.moveCharacter(path);
                     this.showFullPath();
+                    this.mappedNotAllowed = this.mappedNotAllowedTmp;
                 }
                 ,
                 moveCharacter: function (path) {
@@ -706,10 +723,10 @@
                         }
                     }, 500);
                 },
-                showFullPath: function(){
+                showFullPath: function () {
                     // show the content of the fullPath in the html element div#fullPath
                     let fullPath = document.getElementById('fullPath');
-                    fullPath.innerHTML = JSON.stringify(this.fullPath);                    
+                    fullPath.innerHTML = JSON.stringify(this.fullPath);
                 }
 
             },
