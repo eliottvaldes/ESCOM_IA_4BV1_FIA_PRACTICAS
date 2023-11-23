@@ -1,7 +1,7 @@
 import pygame
 import sys
 from collections import deque
-
+import pract02_bfs
 # Inicializar Pygame
 pygame.init()
 
@@ -191,7 +191,7 @@ def obtener_vecinos(nodo):
             vecinos.append(Nodo(nueva_fila, nueva_columna, nodo))
     return vecinos
 
-def dfs(inicio, fin):
+def bfs(inicio, fin):
     inicio = Nodo(inicio[0], inicio[1])
     fin = Nodo(fin[0], fin[1])
 
@@ -243,7 +243,7 @@ punto_final = puntoFinal()
 
 # Una vez que ambos puntos han sido seleccionados, oculta la matriz
 ocultaMatriz()
-ruta = dfs(punto_inicial, punto_final)
+ruta = bfs(punto_inicial, punto_final)
 if ruta:
     for i in range(1, len(ruta)):
         matriz[ruta[i][0]][ruta[i][1]] = 4  # Corrección aquí

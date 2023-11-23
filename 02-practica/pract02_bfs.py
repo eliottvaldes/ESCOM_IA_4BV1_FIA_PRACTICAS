@@ -185,13 +185,6 @@ class Nodo:
         self.padre = padre
         self.hijos = []
 
-def imprimir_arbol_bfs(nodo):
-    if nodo is None:
-        return
-    print(f"({nodo.fila}, {nodo.columna})")
-    for hijo in nodo.hijos:
-        imprimir_arbol_bfs(hijo)
-
 # Función BFS para encontrar la ruta más corta
 def bfs(inicio, destino):
     fila_inicial, columna_inicial = inicio
@@ -226,6 +219,27 @@ def bfs(inicio, destino):
     # pero aún devolvemos el nodo raíz para imprimir el árbol BFS
     return None, nodo_inicial
 
+def imprimir_arbol_bfs(nodo, profundidad=0, es_ultimo=True, prefijo=""):
+    if nodo is None:
+        return
+
+    # Preparar el prefijo para las líneas de conexión del árbol
+    linea = "└── " if es_ultimo else "├── "
+    nuevo_prefijo = "    " if es_ultimo else "|   "
+
+    # Imprimir el nodo actual con el prefijo adecuado
+    print(f"{prefijo}{linea}({nodo.fila}, {nodo.columna})")
+
+    # Actualizar el prefijo para los hijos
+    prefijo += nuevo_prefijo
+
+    # Recorrer los hijos del nodo actual
+    for i, hijo in enumerate(nodo.hijos):
+        # Determinar si el hijo es el último en la lista para dibujar la línea adecuada
+        es_ultimo_hijo = i == len(nodo.hijos) - 1
+        imprimir_arbol_bfs(hijo, profundidad + 1, es_ultimo_hijo, prefijo)
+
+
 dibujar_matriz()
 pygame.display.flip()
 
@@ -236,7 +250,7 @@ punto_inicial = puntoInicial()
 punto_final = puntoFinal()
 
 # Una vez que ambos puntos han sido seleccionados, oculta la matriz
-ocultaMatriz()
+#ocultaMatriz()
 
 
 
