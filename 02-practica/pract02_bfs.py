@@ -189,7 +189,6 @@ class Nodo:
 def bfs(inicio, destino):
     fila_inicial, columna_inicial = inicio
     fila_destino, columna_destino = destino
-
     nodo_inicial = Nodo(fila_inicial, columna_inicial)
     visitado = set()
     cola = deque([nodo_inicial])
@@ -201,11 +200,11 @@ def bfs(inicio, destino):
             while nodo_actual:
                 path.append((nodo_actual.fila, nodo_actual.columna))
                 nodo_actual = nodo_actual.padre
-            # Ahora, en lugar de simplemente devolver la ruta,
-            # devolvemos tanto la ruta como el nodo raíz del árbol BFS
             return path[::-1], nodo_inicial
 
-        for dx, dy in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
+        # Priorizar direcciones: arriba, abajo, izquierda, derecha
+        direcciones_priorizadas = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+        for dx, dy in direcciones_priorizadas:
             nueva_fila, nueva_columna = nodo_actual.fila + dx, nodo_actual.columna + dy
             if (0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and
                 matriz_aux[nueva_fila][nueva_columna] == 0 and
@@ -214,9 +213,6 @@ def bfs(inicio, destino):
                 nodo_vecino = Nodo(nueva_fila, nueva_columna, nodo_actual)
                 nodo_actual.hijos.append(nodo_vecino)
                 cola.append(nodo_vecino)
-                
-    # Si no se encontró un camino, simplemente devolvemos None para el camino,
-    # pero aún devolvemos el nodo raíz para imprimir el árbol BFS
     return None, nodo_inicial
 
 def imprimir_arbol_bfs(nodo, profundidad=0, es_ultimo=True, prefijo=""):
