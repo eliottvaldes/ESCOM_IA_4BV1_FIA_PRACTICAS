@@ -1,6 +1,7 @@
 import pygame
 import sys
 from collections import deque
+import pract02_bfs
 # Inicializar Pygame
 pygame.init()
 
