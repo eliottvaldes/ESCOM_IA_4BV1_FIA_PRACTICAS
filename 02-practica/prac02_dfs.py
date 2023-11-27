@@ -191,29 +191,35 @@ def obtener_vecinos(nodo):
             vecinos.append(Nodo(nueva_fila, nueva_columna, nodo))
     return vecinos
 
-def bfs(inicio, fin):
-    inicio = Nodo(inicio[0], inicio[1])
-    fin = Nodo(fin[0], fin[1])
-
-    visitados = set()
-    pila = [inicio]
+def dfs(inicio, destino):
+    fila_inicial, columna_inicial = inicio
+    fila_destino, columna_destino = destino
+    nodo_inicial = Nodo(fila_inicial, columna_inicial)
+    visitado = set()
+    pila = [nodo_inicial]
 
     while pila:
         nodo_actual = pila.pop()
-        if (nodo_actual.fila, nodo_actual.columna) == (fin.fila, fin.columna):
-            ruta = []
+        if (nodo_actual.fila, nodo_actual.columna) == (fila_destino, columna_destino):
+            path = []
             while nodo_actual:
-                ruta.append((nodo_actual.fila, nodo_actual.columna))
+                path.append((nodo_actual.fila, nodo_actual.columna))
                 nodo_actual = nodo_actual.padre
-            ruta.reverse()
-            return ruta
+            return path[::-1]
 
-        visitados.add((nodo_actual.fila, nodo_actual.columna))
-        vecinos = obtener_vecinos(nodo_actual)
-        for vecino in vecinos:
-            if (vecino.fila, vecino.columna) not in visitados:
-                pila.append(vecino)
+        if (nodo_actual.fila, nodo_actual.columna) not in visitado:
+            visitado.add((nodo_actual.fila, nodo_actual.columna))
+            # Agregar vecinos a la pila
+            for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
+                nueva_fila, nueva_columna = nodo_actual.fila + dx, nodo_actual.columna + dy
+                if (0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and
+                    matriz_aux[nueva_fila][nueva_columna] == 0 and
+                    (nueva_fila, nueva_columna) not in visitado):
+                    nodo_vecino = Nodo(nueva_fila, nueva_columna, nodo_actual)
+                    pila.append(nodo_vecino)
+
     return None
+
 
 def reconstruir_camino(nodo_final):
     camino = []
@@ -224,12 +230,13 @@ def reconstruir_camino(nodo_final):
     camino.reverse()
     return camino, nodo_final  # Retornamos la ruta y la raíz del árbol.
 
-def imprimir_arbol(nodo, nivel=0):
+def imprimir_arbol_en_formato_de_carpetas(nodo, indent=0):
     if nodo is None:
         return
-    print('  ' * nivel + str(nodo.valor))
+    espacios = '    ' * indent  # 4 espacios por nivel de indentación
+    print(f"{espacios}|- (Fila: {nodo.fila}, Columna: {nodo.columna})")
     for hijo in nodo.hijos:
-        imprimir_arbol(hijo, nivel + 1)
+        imprimir_arbol_en_formato_de_carpetas(hijo, indent + 1)
 
 # ... (parte superior del código no modificada)
 
@@ -243,7 +250,7 @@ punto_final = puntoFinal()
 
 # Una vez que ambos puntos han sido seleccionados, oculta la matriz
 ocultaMatriz()
-ruta = bfs(punto_inicial, punto_final)
+ruta, raiz = dfs(punto_inicial, punto_final)
 if ruta:
     for i in range(1, len(ruta)):
         matriz[ruta[i][0]][ruta[i][1]] = 4  # Corrección aquí
@@ -273,6 +280,8 @@ if ruta:
 
 else:
     print("No se encontró una ruta.")
+
+imprimir_arbol_en_formato_de_carpetas(raiz)
 
 # Muestra el arbol generado
 posicion_personaje = punto_inicial  # inicialización de posicion_personaje
