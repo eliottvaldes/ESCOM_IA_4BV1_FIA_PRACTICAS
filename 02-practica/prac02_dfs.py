@@ -185,11 +185,13 @@ class Nodo:
 
 def obtener_vecinos(nodo):
     vecinos = []
-    for dx, dy in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
+    # Orden de prioridad: arriba, abajo, izquierda, derecha
+    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
         nueva_fila, nueva_columna = nodo.fila + dx, nodo.columna + dy
         if 0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and matriz[nueva_fila][nueva_columna] == 0:
             vecinos.append(Nodo(nueva_fila, nueva_columna, nodo))
     return vecinos
+
 
 def dfs(inicio, destino):
     fila_inicial, columna_inicial = inicio
@@ -209,14 +211,9 @@ def dfs(inicio, destino):
 
         if (nodo_actual.fila, nodo_actual.columna) not in visitado:
             visitado.add((nodo_actual.fila, nodo_actual.columna))
-            # Agregar vecinos a la pila
-            for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
-                nueva_fila, nueva_columna = nodo_actual.fila + dx, nodo_actual.columna + dy
-                if (0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and
-                    matriz_aux[nueva_fila][nueva_columna] == 0 and
-                    (nueva_fila, nueva_columna) not in visitado):
-                    nodo_vecino = Nodo(nueva_fila, nueva_columna, nodo_actual)
-                    pila.append(nodo_vecino)
+            vecinos = obtener_vecinos(nodo_actual)
+            for vecino in reversed(vecinos):  # Invertir el orden para mantener la prioridad
+                pila.append(vecino)
 
     return None
 
