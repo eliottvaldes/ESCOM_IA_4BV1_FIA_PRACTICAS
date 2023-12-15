@@ -182,15 +182,18 @@ class Nodo:
         self.fila = fila
         self.columna = columna
         self.padre = padre
+        self.hijos = []
 
 def obtener_vecinos(nodo):
     vecinos = []
-    # Orden de prioridad: arriba, abajo, izquierda, derecha
-    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+    # Orden de prioridad modificado: arriba, abajo, izquierda, derecha
+    direcciones = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    for dx, dy in direcciones:
         nueva_fila, nueva_columna = nodo.fila + dx, nodo.columna + dy
         if 0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and matriz[nueva_fila][nueva_columna] == 0:
             vecinos.append(Nodo(nueva_fila, nueva_columna, nodo))
     return vecinos
+
 
 
 def dfs(inicio, destino):
@@ -202,20 +205,21 @@ def dfs(inicio, destino):
 
     while pila:
         nodo_actual = pila.pop()
-        if (nodo_actual.fila, nodo_actual.columna) == (fila_destino, columna_destino):
-            path = []
-            while nodo_actual:
-                path.append((nodo_actual.fila, nodo_actual.columna))
-                nodo_actual = nodo_actual.padre
-            return path[::-1]
+        if (nodo_actual.fila, nodo_actual.columna) in visitado:
+            continue
 
-        if (nodo_actual.fila, nodo_actual.columna) not in visitado:
-            visitado.add((nodo_actual.fila, nodo_actual.columna))
-            vecinos = obtener_vecinos(nodo_actual)
-            for vecino in reversed(vecinos):  # Invertir el orden para mantener la prioridad
-                pila.append(vecino)
+        visitado.add((nodo_actual.fila, nodo_actual.columna))
+        if (nodo_actual.fila, nodo_actual.columna) == (fila_destino, columna_destino):
+            return nodo_actual  # Devolvemos el nodo final, que tiene la referencia a todo el árbol
+
+        vecinos = obtener_vecinos(nodo_actual)
+        for vecino in reversed(vecinos):  # Revertir para mantener la prioridad correcta
+            nodo_actual.hijos.append(vecino)  # Añadimos el vecino como hijo
+            pila.append(vecino)  # Añadimos el vecino a la pila para continuar el DFS
 
     return None
+
+
 
 
 def reconstruir_camino(nodo_final):
@@ -235,7 +239,7 @@ def imprimir_arbol_en_formato_de_carpetas(nodo, indent=0):
     for hijo in nodo.hijos:
         imprimir_arbol_en_formato_de_carpetas(hijo, indent + 1)
 
-# ... (parte superior del código no modificada)
+
 
 dibujar_matriz()
 pygame.display.flip()
@@ -247,7 +251,8 @@ punto_final = puntoFinal()
 
 # Una vez que ambos puntos han sido seleccionados, oculta la matriz
 ocultaMatriz()
-ruta, raiz = dfs(punto_inicial, punto_final)
+ruta, nodo_final = dfs(punto_inicial, punto_final)
+imprimir_arbol_en_formato_de_carpetas(nodo_final)
 if ruta:
     for i in range(1, len(ruta)):
         matriz[ruta[i][0]][ruta[i][1]] = 4  # Corrección aquí
@@ -277,8 +282,6 @@ if ruta:
 
 else:
     print("No se encontró una ruta.")
-
-imprimir_arbol_en_formato_de_carpetas(raiz)
 
 # Muestra el arbol generado
 posicion_personaje = punto_inicial  # inicialización de posicion_personaje
