@@ -9,7 +9,7 @@ Usando python debes hacer lo siguiente:
 4.1 El sistema debe validar que el punto de llegada seleccionado no sea un punto no permitido por el personaje.
 4.2.- el sistema debe de colocar un puntito rojo en el punto de partida y un puntito verde en el punto de llegada.
 5.- el sistema debe de encontrar la ruta más indicada usando el argoritmo A estrella. La funcion debe devolver los nodos abiertos, los nodos cerrados, el arbol generado y la ruta ideal.
-6.- El sistema debe mover el personaje por el laberinto segun la ruta ideal del algoritmo A estrella.
+6.- El sistema debe mover el personaje por el laberinto segun la ruta ideal del algoritmo A estrella. Tiene que ser como una animación de avance con un delay de 1 segundo entre cada movimiento.
 7.- El sistema debe de colocar en el laberinto la notación en texto indicada en los pasos siguientes:
 7.1- El sistema debe colocar una letra 'O' en laberinto segun sean los nodos abiertos del algoritmo a estrella.
 7.2.- El sistema debe colocar una letra 'X' en laberinto segun sean los nodos cerrados del algoritmo a estrella.
@@ -137,7 +137,7 @@ def main():
     try:
         path, g_score, f_score, came_from = a_star_search(start_point, end_point, character)
         print("Ruta encontrada:", path)
-        move_character(path, character)  # Aquí mueves el personaje a través de la ruta.
+        move_character(path, character)
     except ValueError as e:
         print("Error en la búsqueda de ruta:", e)
         return
@@ -324,10 +324,9 @@ def move_character(path, character):
     for position in path:
         draw_character(position, character)
         pygame.display.flip()
-        pygame.time.wait(1000)  # Espera 1 segundo entre cada movimiento
-        clear_character(position)
-    else:
-        print("Personaje ha llegado a su destino.")
+        pygame.time.wait(500)  # Espera 1 segundo entre cada movimiento
+        clear_character(position)    
+                
 
 def draw_character(position, character):
     x, y = position
