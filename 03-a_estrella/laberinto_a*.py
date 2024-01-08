@@ -312,7 +312,7 @@ def draw_optimal_route(path):
     for position in path:
         x, y = position
         text_surface = font.render('R', True, (255, 255, 255))  # Verde para la ruta óptima
-        screen.blit(text_surface, ( (x * CELL_SIZE) + 15, (y * CELL_SIZE) + 10) )
+        screen.blit(text_surface, ( (x * CELL_SIZE) + 15, (y * CELL_SIZE) + 15) )
 
 # Función para cambiar todo el laberinto a negro con bordes blancos
 def change_maze_color_black():
