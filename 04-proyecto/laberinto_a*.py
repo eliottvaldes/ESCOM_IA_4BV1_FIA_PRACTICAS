@@ -45,6 +45,9 @@ pygame.display.set_caption("Laberinto A*")
 
 # Variables globales para los puntos de inicio y fin
 global start_point1, end_point1, start_point2, end_point2, common_end_point
+global routes  # Almacena las rutas óptimas para cada personaje
+routes = []
+
 
 def main():
     global start_point1, end_point1, start_point2, end_point2, common_end_point
@@ -82,6 +85,9 @@ def main():
         draw_maze()
         draw_points()
         
+         # Dibuja las rutas óptimas
+        for path in routes:
+            draw_optimal_route(path)
 
         pygame.display.flip()
 
@@ -302,6 +308,8 @@ def move_character_to_goal(character, start_point, goal_point):
         print_tree(came_from, start_point)
         print("Ruta encontrada:", path)
         move_character(path, character)
+        # add the path to the routes dictionary
+        routes.append(path)
     except ValueError as e:
         print("Error en la búsqueda de ruta:", e)
 
