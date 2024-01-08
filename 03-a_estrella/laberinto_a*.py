@@ -63,7 +63,7 @@ def main():
     try:        
         path, g_score, f_score, came_from, open_nodes, closed_nodes = a_star_search(start_point, end_point, character)       
         print_tree(came_from, start_point)        
-        print("Ruta encontrada:", path)
+        print("Ruta encontrada:", path)        
         move_character(path, character)
     except ValueError as e:
         print("Error en la búsqueda de ruta:", e)
@@ -78,6 +78,7 @@ def main():
         draw_maze()
         draw_start_end_points(start_point, end_point)  # Asegúrate de dibujar los puntos de inicio y fin
         draw_open_closed_nodes(open_nodes, closed_nodes)  # Dibuja nodos abiertos y cerrados
+        draw_optimal_route(path)
 
         pygame.display.flip()
 
@@ -303,6 +304,13 @@ def draw_open_closed_nodes(open_set_hash, closed_set):
             screen.blit(text_surface, (x * CELL_SIZE, y * CELL_SIZE))
 
     
+# Función para dibujar la ruta óptima en el laberinto
+def draw_optimal_route(path):
+    for position in path:
+        x, y = position
+        text_surface = font.render('R', True, (255, 255, 255))  # Verde para la ruta óptima
+        screen.blit(text_surface, ( (x * CELL_SIZE) + 15, (y * CELL_SIZE) + 10) )
+
 
 
 """
