@@ -47,13 +47,18 @@ screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Laberinto A*")
 
 
+# Variables globales para los puntos de inicio y fin
+global start_point, end_point
+
 def main():
+    global start_point, end_point
     running = True
     
     character = select_character()  # Selección del personaje     
     start_point = select_point("Seleccione el punto de partida", character, validate_point)
     end_point = select_point("Seleccione el punto de llegada", character, validate_point)
-    draw_start_end_points(start_point, end_point)  # Dibujar puntos de inicio y fin
+
+
     # Llamada a a_star_search    
     try:        
         path, g_score, f_score, came_from, open_nodes, closed_nodes = a_star_search(start_point, end_point, character)       
@@ -71,6 +76,7 @@ def main():
 
         screen.fill((0, 0, 0))
         draw_maze()
+        draw_start_end_points(start_point, end_point)  # Asegúrate de dibujar los puntos de inicio y fin
         draw_open_closed_nodes(open_nodes, closed_nodes)  # Dibuja nodos abiertos y cerrados
 
         pygame.display.flip()
@@ -292,7 +298,7 @@ def draw_open_closed_nodes(open_set_hash, closed_set):
 
     for node in closed_set:
         x, y = node
-        text_surface = font.render('X', True, (255, 0, 0))  # Verde para nodos cerrados
+        text_surface = font.render('X', True, (0, 0, 255))  # Verde para nodos cerrados
         screen.blit(text_surface, (x * CELL_SIZE, y * CELL_SIZE))
 
 
