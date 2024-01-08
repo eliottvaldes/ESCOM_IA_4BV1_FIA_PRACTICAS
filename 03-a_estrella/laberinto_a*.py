@@ -291,15 +291,18 @@ def print_tree(tree, start, level=0):
 MOSTRAR NODOS ABIERTOS Y CERRADOS
 """
 def draw_open_closed_nodes(open_set_hash, closed_set):
-    for node in open_set_hash:
-        x, y = node
-        text_surface = font.render('O', True, (255, 0, 0))  # Rojo para nodos abiertos
-        screen.blit(text_surface, (x * CELL_SIZE, y * CELL_SIZE))
-
     for node in closed_set:
         x, y = node
         text_surface = font.render('X', True, (0, 0, 255))  # Verde para nodos cerrados
         screen.blit(text_surface, (x * CELL_SIZE, y * CELL_SIZE))
+        
+    for node in open_set_hash:
+        if node not in closed_set:
+            x, y = node
+            text_surface = font.render('O', True, (255, 0, 0))  # Rojo para nodos abiertos
+            screen.blit(text_surface, (x * CELL_SIZE, y * CELL_SIZE))
+
+    
 
 
 """
