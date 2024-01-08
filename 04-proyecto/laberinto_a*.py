@@ -50,9 +50,15 @@ def main():
     global start_point, end_point
     running = True
     
-    character = select_character()  # Selección del personaje     
-    start_point = select_point("Seleccione el punto de partida", character, validate_point)
-    end_point = select_point("Seleccione el punto de llegada", character, validate_point)
+    character1 = select_character("Seleccione el primer personaje")  # Selección del primer personaje
+    start_point1 = select_point("Seleccione el punto de partida para el personaje 1", character1, validate_point)
+    end_point1 = select_point("Seleccione el punto de llegada para el personaje 1", character1, validate_point)
+
+    character2 = select_character("Seleccione el segundo personaje")  # Selección del segundo personaje
+    start_point2 = select_point("Seleccione el punto de partida para el personaje 2", character2, validate_point)
+    end_point2 = select_point("Seleccione el punto de llegada para el personaje 2", character2, validate_point)
+
+    common_end_point = select_point("Seleccione un punto de llegada común", character1, validate_point)  # Punto común
 
     # Llamada a a_star_search    
     try:        
@@ -103,7 +109,8 @@ def create_character_buttons():
     return buttons
 
 # funcion para seleccionar el personaje usando los botones
-def select_character():
+def select_character(message):
+    print(message)
     character_button_rect = create_character_buttons()
     selected_character = None
     while selected_character is None:
@@ -167,6 +174,19 @@ def validate_point(character, selected_point):
         return False
     return True 
     
+def draw_points():
+    draw_start_end_point(start_point1, (255, 0, 0))  # Rojo para el personaje 1
+    draw_start_end_point(end_point1, (0, 255, 0))  # Verde para la meta del personaje 1
+    draw_start_end_point(start_point2, (0, 0, 255))  # Azul para el personaje 2
+    draw_start_end_point(end_point2, (255, 255, 0))  # Amarillo para la meta del personaje 2
+    draw_start_end_point(common_end_point, (255, 165, 0))  # Naranja para el punto común
+
+def draw_start_end_point(point, color):
+    if point:
+        center = (point[0] * CELL_SIZE + CELL_SIZE // 2, point[1] * CELL_SIZE + CELL_SIZE // 2)
+        pygame.draw.circle(screen, color, center, CELL_SIZE // 2)
+
+# Asegúrate de llamar a draw_points dentro del bucle while en la función main
 
 # funcion para dibujar los puntos de partida y puntos de llegada
 def draw_start_end_points(start_point, end_point):    
