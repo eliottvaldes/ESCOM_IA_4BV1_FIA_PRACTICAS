@@ -57,16 +57,12 @@ def main():
     # Llamada a a_star_search    
     try:
         path, g_score, f_score, came_from = a_star_search(start_point, end_point, character)
+        print_tree(came_from, start_point)        
         print("Ruta encontrada:", path)
         move_character(path, character)
     except ValueError as e:
         print("Error en la búsqueda de ruta:", e)
-        return
-
-    # Procesamiento de los resultados
-    open_nodes = set(f_score) - set(g_score)  # Nodos que estaban en open_set pero no en closed_set
-    closed_nodes = set(g_score)  # Nodos que fueron completamente explorados
-
+        return    
 
     while running:
         for event in pygame.event.get():
@@ -74,7 +70,7 @@ def main():
                 running = False
 
         screen.fill((0, 0, 0))
-        draw_maze()
+        draw_maze()        
         
         pygame.display.flip()
 
@@ -263,6 +259,18 @@ def clear_character(position):
     pygame.draw.rect(screen, (0, 0, 0), rect, 1)  # Redibuja el borde de la celda.
 
 
+"""
+ARBOL GENERADO
+"""
+def print_tree(tree, start, level=0):
+    indent = ' ' * (level * 4)  # 4 espacios por nivel de indentación
+    print(f"{indent}- {start}")
+    children = [node for node, parent in tree.items() if parent == start]
+    for child in children:
+        print_tree(tree, child, level + 1)
 
+"""
+RUN MAIN FUNCION
+"""
 if __name__ == "__main__":
     main()
