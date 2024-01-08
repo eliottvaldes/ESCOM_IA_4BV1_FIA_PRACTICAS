@@ -44,10 +44,10 @@ pygame.display.set_caption("Laberinto A*")
 
 
 # Variables globales para los puntos de inicio y fin
-global start_point, end_point
+global start_point1, end_point1, start_point2, end_point2, common_end_point
 
 def main():
-    global start_point, end_point
+    global start_point1, end_point1, start_point2, end_point2, common_end_point
     running = True
     
     character1 = select_character("Seleccione el primer personaje")  # Selección del primer personaje
@@ -60,16 +60,18 @@ def main():
 
     common_end_point = select_point("Seleccione un punto de llegada común", character1, validate_point)  # Punto común
 
-    # Llamada a a_star_search    
-    try:        
-        path, g_score, f_score, came_from, open_nodes, closed_nodes = a_star_search(start_point, end_point, character)       
-        print_tree(came_from, start_point)        
-        print("Ruta encontrada:", path)       
-        # Actualiza el laberinto para mostrar nodos abiertos/cerrados en color        
-        move_character(path, character)
-    except ValueError as e:
-        print("Error en la búsqueda de ruta:", e)
-        return    
+    # Mover personaje 1 a su meta 'K'
+    move_character_to_goal(character1, start_point1, end_point1)
+
+    # Mover personaje 2 a su meta 'D'
+    move_character_to_goal(character2, start_point2, end_point2)
+
+    # Mover personaje 1 al punto en común 'P'
+    move_character_to_goal(character1, end_point1, common_end_point)
+
+    # Mover personaje 2 al punto en común 'P'
+    move_character_to_goal(character2, end_point2, common_end_point)
+
 
     while running:
         for event in pygame.event.get():
@@ -78,9 +80,8 @@ def main():
 
         screen.fill((0, 0, 0))
         draw_maze()
-        draw_start_end_points(start_point, end_point)  # Asegúrate de dibujar los puntos de inicio y fin
-        draw_open_closed_nodes(open_nodes, closed_nodes)  # Dibuja nodos abiertos y cerrados
-        draw_optimal_route(path)
+        draw_points()
+        
 
         pygame.display.flip()
 
@@ -176,10 +177,10 @@ def validate_point(character, selected_point):
     
 def draw_points():
     draw_start_end_point(start_point1, (255, 0, 0))  # Rojo para el personaje 1
-    draw_start_end_point(end_point1, (0, 255, 0))  # Verde para la meta del personaje 1
+    draw_start_end_point(end_point1, (255, 0, 0))  # Verde para la meta del personaje 1
     draw_start_end_point(start_point2, (0, 0, 255))  # Azul para el personaje 2
-    draw_start_end_point(end_point2, (255, 255, 0))  # Amarillo para la meta del personaje 2
-    draw_start_end_point(common_end_point, (255, 165, 0))  # Naranja para el punto común
+    draw_start_end_point(end_point2, (0, 0, 255))  # Amarillo para la meta del personaje 2
+    draw_start_end_point(common_end_point, (30, 195, 30))  # Naranja para el punto común
 
 def draw_start_end_point(point, color):
     if point:
@@ -270,12 +271,15 @@ def get_cost(a, b, character):
 MOVIMIENTO DE PERSONAJES
 """
 
+        
 def move_character(path, character):
     for position in path:
         draw_character(position, character)
         pygame.display.flip()
-        pygame.time.wait(500)  # Espera 1 segundo entre cada movimiento
-        clear_character(position)    
+        pygame.time.wait(500)  # Espera 0.5 segundos entre cada movimiento
+        if position not in [start_point1, end_point1, start_point2, end_point2, common_end_point]:
+            clear_character(position)
+
                 
 
 def draw_character(position, character):
@@ -290,6 +294,20 @@ def clear_character(position):
     rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
     pygame.draw.rect(screen, colorDictionary[mazeMatrix[y][x]], rect)
     pygame.draw.rect(screen, (0, 0, 0), rect, 1)  # Redibuja el borde de la celda.
+
+
+def move_character_to_goal(character, start_point, goal_point):
+    try:
+        path, g_score, f_score, came_from, open_nodes, closed_nodes = a_star_search(start_point, goal_point, character)
+        print_tree(came_from, start_point)
+        print("Ruta encontrada:", path)
+        move_character(path, character)
+    except ValueError as e:
+        print("Error en la búsqueda de ruta:", e)
+
+    # Redibuja los puntos para que permanezcan visibles
+    draw_points()
+    pygame.display.flip()
 
 
 """
