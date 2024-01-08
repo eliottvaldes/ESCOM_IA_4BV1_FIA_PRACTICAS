@@ -57,13 +57,16 @@ def main():
     character = select_character()  # Selección del personaje     
     start_point = select_point("Seleccione el punto de partida", character, validate_point)
     end_point = select_point("Seleccione el punto de llegada", character, validate_point)
+    change_maze_color_black()
 
 
     # Llamada a a_star_search    
     try:        
         path, g_score, f_score, came_from, open_nodes, closed_nodes = a_star_search(start_point, end_point, character)       
         print_tree(came_from, start_point)        
-        print("Ruta encontrada:", path)        
+        print("Ruta encontrada:", path)       
+        # Actualiza el laberinto para mostrar nodos abiertos/cerrados en color
+        update_maze_with_open_closed_nodes(open_nodes, closed_nodes) 
         move_character(path, character)
     except ValueError as e:
         print("Error en la búsqueda de ruta:", e)
@@ -310,6 +313,23 @@ def draw_optimal_route(path):
         x, y = position
         text_surface = font.render('R', True, (255, 255, 255))  # Verde para la ruta óptima
         screen.blit(text_surface, ( (x * CELL_SIZE) + 15, (y * CELL_SIZE) + 10) )
+
+# Función para cambiar todo el laberinto a negro con bordes blancos
+def change_maze_color_black():
+    for y in range(len(mazeMatrix)):
+        for x in range(len(mazeMatrix[0])):
+            rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+            pygame.draw.rect(screen, (0, 0, 0), rect)
+            pygame.draw.rect(screen, (255, 255, 255), rect, 1)
+
+# Función para actualizar el laberinto con los nodos abiertos y cerrados en color
+def update_maze_with_open_closed_nodes(open_nodes, closed_nodes):
+    for y, row in enumerate(mazeMatrix):
+        for x, cell in enumerate(row):
+            if (x, y) in open_nodes or (x, y) in closed_nodes:
+                rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+                pygame.draw.rect(screen, colorDictionary[cell], rect)
+                pygame.draw.rect(screen, (0, 0, 0), rect, 1)
 
 
 
