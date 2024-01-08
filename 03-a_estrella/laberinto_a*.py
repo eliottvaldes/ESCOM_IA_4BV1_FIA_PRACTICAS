@@ -188,10 +188,15 @@ def a_star_search(start, goal, character):
     g_score = {start: 0}
     f_score = {start: heuristic(start, goal)}
     open_set_hash = {start}
+    closed_set = set()  # Conjunto de nodos cerrados
 
     while not open_set.empty():
         current = open_set.get()[1]
         open_set_hash.remove(current)
+        closed_set.add(current)  # Añade el nodo actual al conjunto de cerrados
+        
+        draw_open_closed_nodes(open_set_hash, closed_set)  # Dibuja los nodos abiertos y cerrados
+        pygame.display.flip()  # Actualiza la pantalla
 
         if current == goal:
             return reconstruct_path(came_from, current), g_score, f_score, came_from
@@ -268,6 +273,23 @@ def print_tree(tree, start, level=0):
     children = [node for node, parent in tree.items() if parent == start]
     for child in children:
         print_tree(tree, child, level + 1)
+
+
+
+"""
+MOSTRAR NODOS ABIERTOS Y CERRADOS
+"""
+def draw_open_closed_nodes(open_set_hash, closed_set):
+    for node in open_set_hash:
+        x, y = node
+        text_surface = font.render('O', True, (255, 0, 0))  # Rojo para nodos abiertos
+        screen.blit(text_surface, (x * CELL_SIZE, y * CELL_SIZE))
+
+    for node in closed_set:
+        x, y = node
+        text_surface = font.render('X', True, (255, 0, 0))  # Verde para nodos cerrados
+        screen.blit(text_surface, (x * CELL_SIZE, y * CELL_SIZE))
+
 
 """
 RUN MAIN FUNCION
