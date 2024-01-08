@@ -9,8 +9,8 @@ Usando python debes hacer lo siguiente:
 4.1 El sistema debe validar que el punto de llegada seleccionado no sea un punto no permitido por el personaje.
 4.2.- el sistema debe de colocar un puntito rojo en el punto de partida y un puntito verde en el punto de llegada.
 5.- el sistema debe de encontrar la ruta más indicada usando el argoritmo A estrella. La funcion debe devolver los nodos abiertos, los nodos cerrados, el arbol generado y la ruta ideal.
-6.- el sistema debe mover el personaje por el laberinto segun la ruta ideal del algoritmo A estrella.
-7.- El sistema debe de colocar en el laberinto la notación indicada en los pasos siguientes:
+6.- El sistema debe mover el personaje por el laberinto segun la ruta ideal del algoritmo A estrella.
+7.- El sistema debe de colocar en el laberinto la notación en texto indicada en los pasos siguientes:
 7.1- El sistema debe colocar una letra 'O' en laberinto segun sean los nodos abiertos del algoritmo a estrella.
 7.2.- El sistema debe colocar una letra 'X' en laberinto segun sean los nodos cerrados del algoritmo a estrella.
 7.3- El sistema debe colocar entre parentesis el costo total del movimiento en cada una de las celdas visitadas por el algoritmo A estrella. Ejemplo de un nodo abierto con costo de 5: O(5). Ejemplo de un nodo cerrado con costo de 2: X(2).
@@ -28,6 +28,8 @@ Toma en cuenta el codigo ya existente:
 
 import pygame
 import sys
+from queue import PriorityQueue
+import time
 
 # Constantes
 WINDOW_WIDTH, WINDOW_HEIGHT = 600, 600
@@ -130,6 +132,20 @@ def main():
     character = select_character()  # Selección del personaje     
     start_point = select_point("Seleccione el punto de partida", character, validate_point)
     end_point = select_point("Seleccione el punto de llegada", character, validate_point)
+    draw_start_end_points(start_point, end_point)  # Dibujar puntos de inicio y fin
+    # Llamada a a_star_search    
+    try:
+        path, g_score, f_score, came_from = a_star_search(start_point, end_point, character)
+        print("Ruta encontrada:", path)
+        move_character(path, character)  # Aquí mueves el personaje a través de la ruta.
+    except ValueError as e:
+        print("Error en la búsqueda de ruta:", e)
+        return
+
+    # Procesamiento de los resultados
+    open_nodes = set(f_score) - set(g_score)  # Nodos que estaban en open_set pero no en closed_set
+    closed_nodes = set(g_score)  # Nodos que fueron completamente explorados
+
 
     while running:
         for event in pygame.event.get():
@@ -138,7 +154,7 @@ def main():
 
         screen.fill((0, 0, 0))
         draw_maze()
-        draw_start_end_points(start_point, end_point)  # Dibujar puntos de inicio y fin
+        
         pygame.display.flip()
 
     pygame.quit()
@@ -238,6 +254,93 @@ def draw_start_end_points(start_point, end_point):
 
     end_center = (end_point[0] * CELL_SIZE + CELL_SIZE // 2, end_point[1] * CELL_SIZE + CELL_SIZE // 2)
     pygame.draw.circle(screen, (0, 0, 255), end_center, CELL_SIZE // 2)  # Círculo azul para el fin
+
+
+"""
+ALGORITMO A ESTRELLA
+"""
+def heuristic(a, b):
+    (x1, y1) = a
+    (x2, y2) = b
+    return abs(x1 - x2) + abs(y1 - y2)
+
+def a_star_search(start, goal, character):
+    open_set = PriorityQueue()
+    open_set.put((0, start))
+    came_from = {}
+    g_score = {start: 0}
+    f_score = {start: heuristic(start, goal)}
+    open_set_hash = {start}
+
+    while not open_set.empty():
+        current = open_set.get()[1]
+        open_set_hash.remove(current)
+
+        if current == goal:
+            return reconstruct_path(came_from, current), g_score, f_score, came_from
+
+        for neighbor in neighbors(current, character):
+            tentative_g_score = g_score[current] + get_cost(current, neighbor, character)
+
+            if tentative_g_score < g_score.get(neighbor, float('inf')):
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g_score
+                f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+                if neighbor not in open_set_hash:
+                    open_set.put((f_score[neighbor], neighbor))
+                    open_set_hash.add(neighbor)
+
+    raise ValueError("No Path Found")
+
+def reconstruct_path(came_from, current):
+    total_path = [current]
+    while current in came_from:
+        current = came_from[current]
+        total_path.append(current)
+    return total_path[::-1]  # Return reversed path
+
+def neighbors(node, character):
+    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Down, Right, Up, Left
+    result = []
+    for dir in directions:
+        next_node = (node[0] + dir[0], node[1] + dir[1])
+        if 0 <= next_node[0] < len(mazeMatrix[0]) and 0 <= next_node[1] < len(mazeMatrix):
+            if mazeMatrix[next_node[1]][next_node[0]] not in characters[character]['fieldsNotAllowed']:
+                result.append(next_node)
+    return result
+
+def get_cost(a, b, character):
+    ax, ay = a
+    bx, by = b
+    cell_value = mazeMatrix[by][bx]
+    cell_index = int(cell_value)
+    return characters[character]['heights'][cell_index]
+
+"""
+MOVIMIENTO DE PERSONAJES
+"""
+
+def move_character(path, character):
+    for position in path:
+        draw_character(position, character)
+        pygame.display.flip()
+        pygame.time.wait(1000)  # Espera 1 segundo entre cada movimiento
+        clear_character(position)
+    else:
+        print("Personaje ha llegado a su destino.")
+
+def draw_character(position, character):
+    x, y = position
+    center = (x * CELL_SIZE + CELL_SIZE // 2, y * CELL_SIZE + CELL_SIZE // 2)
+    
+    pygame.draw.circle(screen, (0, 0, 0), center, CELL_SIZE // 2)    
+    
+
+def clear_character(position):
+    x, y = position
+    rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+    pygame.draw.rect(screen, colorDictionary[mazeMatrix[y][x]], rect)
+    pygame.draw.rect(screen, (0, 0, 0), rect, 1)  # Redibuja el borde de la celda.
 
 
 
