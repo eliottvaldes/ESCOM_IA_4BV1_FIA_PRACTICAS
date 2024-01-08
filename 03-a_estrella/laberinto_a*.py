@@ -55,8 +55,8 @@ def main():
     end_point = select_point("Seleccione el punto de llegada", character, validate_point)
     draw_start_end_points(start_point, end_point)  # Dibujar puntos de inicio y fin
     # Llamada a a_star_search    
-    try:
-        path, g_score, f_score, came_from = a_star_search(start_point, end_point, character)
+    try:        
+        path, g_score, f_score, came_from, open_nodes, closed_nodes = a_star_search(start_point, end_point, character)       
         print_tree(came_from, start_point)        
         print("Ruta encontrada:", path)
         move_character(path, character)
@@ -70,8 +70,9 @@ def main():
                 running = False
 
         screen.fill((0, 0, 0))
-        draw_maze()        
-        
+        draw_maze()
+        draw_open_closed_nodes(open_nodes, closed_nodes)  # Dibuja nodos abiertos y cerrados
+
         pygame.display.flip()
 
     pygame.quit()
@@ -189,17 +190,21 @@ def a_star_search(start, goal, character):
     f_score = {start: heuristic(start, goal)}
     open_set_hash = {start}
     closed_set = set()  # Conjunto de nodos cerrados
+    # Variables para almacenar nodos abiertos y cerrados
+    open_nodes = set()
+    closed_nodes = set()
 
     while not open_set.empty():
         current = open_set.get()[1]
         open_set_hash.remove(current)
         closed_set.add(current)  # Añade el nodo actual al conjunto de cerrados
         
-        draw_open_closed_nodes(open_set_hash, closed_set)  # Dibuja los nodos abiertos y cerrados
-        pygame.display.flip()  # Actualiza la pantalla
+        open_nodes.update(open_set_hash)  # Almacena nodos abiertos
+        closed_nodes.update(closed_set)   # Almacena nodos cerrados
+        
+        if current == goal:            
+            return reconstruct_path(came_from, current), g_score, f_score, came_from, open_nodes, closed_nodes
 
-        if current == goal:
-            return reconstruct_path(came_from, current), g_score, f_score, came_from
 
         for neighbor in neighbors(current, character):
             tentative_g_score = g_score[current] + get_cost(current, neighbor, character)
