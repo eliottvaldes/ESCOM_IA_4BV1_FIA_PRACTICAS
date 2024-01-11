@@ -1,4 +1,3 @@
-# %%
 from ucimlrepo import fetch_ucirepo
 import pandas as pd
 import numpy as np
@@ -9,8 +8,6 @@ datasets = {
     "Adair": 109, # Wine
 }
 
-
-# %%
 dataset = fetch_ucirepo(id=datasets["Eliot"])
 # obtenemos los datos
 X = dataset.data.features 
@@ -18,38 +15,28 @@ y = dataset.data.targets
 df = pd.DataFrame(X, columns=dataset.data.feature_names)
 df['target'] = y
 
-# %%
 df = df.dropna()
 
-# %%
 def separate_dataframe(df):
     vector_x = df.drop(df.columns[-1], axis=1) 
     vector_y = df[df.columns[-1]]
     return vector_x, vector_y
 
-# %%
-vector_x, vector_y = separate_dataframe(df)
 
-# %%
+vector_x, vector_y = separate_dataframe(df)
 vector_x = vector_x.select_dtypes(include=['int64', 'float64'])
 
-# %%
 print("\n","*"*50)
 print(f"Vector de entrada: ")
 print("*"*50)
 print(vector_x.head())
 
-# %%
 print("\n","*"*50)
 print(f"Vector de salida: ")
 print("*"*50)
 print(vector_y.head(), end="\n\n")
 
-# %% [markdown]
-# ----
-# # MODELOS
-
-# %%
+# MODELOS
 def min_distance_classifier(train_x, train_y, test_x):
     # Calcular el promedio de cada clase en el conjunto de entrenamiento
     class_means = train_x.groupby(train_y).mean()
@@ -68,8 +55,6 @@ def min_distance_classifier(train_x, train_y, test_x):
 
     return predicted_y
 
-
-# %%
 def knn_classifier(train_x, train_y, test_x, k=1):
     predicted_y = []
     for _, test_row in test_x.iterrows():
@@ -83,15 +68,7 @@ def knn_classifier(train_x, train_y, test_x, k=1):
 
     return predicted_y
 
-
-# %% [markdown]
-# ----
-# # METODOS DE VALIDACIÓN
-
-# %% [markdown]
-# - ### METODO TRAIN-TEST SPLIT
-
-# %%
+# METODOS DE VALIDACION
 def train_test_split(data_x, data_y, test_size=0.2):
     test_indices = np.random.choice(data_x.index, size=int(len(data_x) * test_size), replace=False)
     train_x = data_x.drop(test_indices)
@@ -108,10 +85,7 @@ def evaluate_model(classifier, data_x, data_y, test_size=0.2):
     return accuracy, error_rate
 
 
-# %% [markdown]
-# - ### K FOLD CROSS VALIDATION
 
-# %%
 def k_fold_cross_validation(classifier, data_x, data_y, k=5):
     fold_size = int(len(data_x) / k)
     accuracies = []
@@ -133,10 +107,6 @@ def k_fold_cross_validation(classifier, data_x, data_y, k=5):
     return mean_accuracy, error_rate
 
 
-# %% [markdown]
-# - ### BOOTSTRAP
-
-# %%
 def bootstrap_validation(classifier, data_x, data_y, n_iterations=100, sample_size=None):
     if sample_size is None:
         sample_size = len(data_x)
@@ -160,69 +130,42 @@ def bootstrap_validation(classifier, data_x, data_y, n_iterations=100, sample_si
     return mean_accuracy, error_rate
 
 
-# %% [markdown]
-# -----
-# # USO DE LOS MODELOS
-
-# %% [markdown]
-# - ## 4 => MODELO: DISTANCIA MINIMA
-
-# %% [markdown]
-# - ### 4.A => DISTANCIA MINIMA - EVALUADO CON: TRAIN-TEST SPLIT
-
-# %%
+# USO DE LOS MODELOS
+## 4 => MODELO: DISTANCIA MINIMA
+### 4.A => DISTANCIA MINIMA - EVALUADO CON: TRAIN-TEST SPLIT
 accuracy, error_rate = evaluate_model(min_distance_classifier, vector_x, vector_y, test_size=0.2)
 print("\n","="*50)
 print("Min Distance Classifier - Train Test Split")
 print("Accuracy:", accuracy, "Error Rate:", error_rate)
 
 
-# %% [markdown]
-# - ### 4.B => DISTANCIA MINIMA - EVALUADO CON: K FOLD CROSS VALIDATION
-
-# %%
+### 4.B => DISTANCIA MINIMA - EVALUADO CON: K FOLD CROSS VALIDATION
 accuracy, error_rate = k_fold_cross_validation(min_distance_classifier, vector_x, vector_y, k=5)
 print("\n","="*50)
 print("Min Distance Classifier - K-fold Cross Validation")
 print("Accuracy:", accuracy, "Error Rate:", error_rate)
 
-# %% [markdown]
-# - ### 4.C => DISTANCIA MINIMA - EVALUADO CON: BOOTSTRAP
-
-# %%
+### 4.C => DISTANCIA MINIMA - EVALUADO CON: BOOTSTRAP
 accuracy, error_rate = bootstrap_validation(min_distance_classifier, vector_x, vector_y, n_iterations=100)
 print("\n","="*50)
 print("Min Distance Classifier - Bootstrap")
 print("Accuracy:", accuracy, "Error Rate:", error_rate)
 
 
-# %% [markdown]
-# - ## 5 => MODELO: KNN(K=1)
-
-# %% [markdown]
-# - ### 5.A => KNN - EVALUADO CON: TRAIN-TEST SPLIT
-
-# %%
+## 5 => MODELO: KNN(K=1)
+### 5.A => KNN - EVALUADO CON: TRAIN-TEST SPLIT
 accuracy, error_rate = evaluate_model(lambda x, y, z: knn_classifier(x, y, z, k=1), vector_x, vector_y, test_size=0.2)
 print("\n","="*50)
 print("KNN Classifier (K=1) - Train Test Split")
 print("Accuracy:", accuracy, "Error Rate:", error_rate)
 
-
-# %% [markdown]
-# - ### 5.B => KNN - EVALUADO CON: K FOLD CROSS VALIDATION
-
-# %%
+### 5.B => KNN - EVALUADO CON: K FOLD CROSS VALIDATION
 accuracy, error_rate = k_fold_cross_validation(lambda x, y, z: knn_classifier(x, y, z, k=1), vector_x, vector_y, k=5)
 print("\n","="*50)
 print("KNN Classifier (K=1) - K-fold Cross Validation")
 print("Accuracy:", accuracy, "Error Rate:", error_rate)
 
-
-# %% [markdown]
-# - ### 5.C => KNN - EVALUADO CON: BOOTSTRAP
-
-# %%
+### 5.C => KNN - EVALUADO CON: BOOTSTRAP
 accuracy, error_rate = bootstrap_validation(lambda x, y, z: knn_classifier(x, y, z, k=1), vector_x, vector_y, n_iterations=100)
 print("\n","="*50)
 print("KNN Classifier (K=1) - Bootstrap")
