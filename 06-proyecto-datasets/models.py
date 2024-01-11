@@ -133,40 +133,46 @@ def bootstrap_validation(classifier, data_x, data_y, n_iterations=100, sample_si
 # USO DE LOS MODELOS
 ## 4 => MODELO: DISTANCIA MINIMA
 ### 4.A => DISTANCIA MINIMA - EVALUADO CON: TRAIN-TEST SPLIT
-accuracy, error_rate = evaluate_model(min_distance_classifier, vector_x, vector_y, test_size=0.2)
-print("\n","="*50)
-print("Min Distance Classifier - Train Test Split")
-print("Accuracy:", accuracy, "Error Rate:", error_rate)
-
-
 ### 4.B => DISTANCIA MINIMA - EVALUADO CON: K FOLD CROSS VALIDATION
-accuracy, error_rate = k_fold_cross_validation(min_distance_classifier, vector_x, vector_y, k=5)
-print("\n","="*50)
-print("Min Distance Classifier - K-fold Cross Validation")
-print("Accuracy:", accuracy, "Error Rate:", error_rate)
-
 ### 4.C => DISTANCIA MINIMA - EVALUADO CON: BOOTSTRAP
-accuracy, error_rate = bootstrap_validation(min_distance_classifier, vector_x, vector_y, n_iterations=100)
-print("\n","="*50)
-print("Min Distance Classifier - Bootstrap")
-print("Accuracy:", accuracy, "Error Rate:", error_rate)
+def run_min_distance_model(vector_x, vector_y):
+    accuracy, error_rate = evaluate_model(min_distance_classifier, vector_x, vector_y, test_size=0.2)
+    print("\n","="*50)
+    print("Min Distance Classifier - Train Test Split")
+    print("Accuracy:", accuracy, "Error Rate:", error_rate)
+    
+    accuracy, error_rate = k_fold_cross_validation(min_distance_classifier, vector_x, vector_y, k=5)
+    print("\n","="*50)
+    print("Min Distance Classifier - K-fold Cross Validation")
+    print("Accuracy:", accuracy, "Error Rate:", error_rate)
+
+    accuracy, error_rate = bootstrap_validation(min_distance_classifier, vector_x, vector_y, n_iterations=100)
+    print("\n","="*50)
+    print("Min Distance Classifier - Bootstrap")
+    print("Accuracy:", accuracy, "Error Rate:", error_rate, end="\n\n")
 
 
 ## 5 => MODELO: KNN(K=1)
 ### 5.A => KNN - EVALUADO CON: TRAIN-TEST SPLIT
-accuracy, error_rate = evaluate_model(lambda x, y, z: knn_classifier(x, y, z, k=1), vector_x, vector_y, test_size=0.2)
-print("\n","="*50)
-print("KNN Classifier (K=1) - Train Test Split")
-print("Accuracy:", accuracy, "Error Rate:", error_rate)
-
 ### 5.B => KNN - EVALUADO CON: K FOLD CROSS VALIDATION
-accuracy, error_rate = k_fold_cross_validation(lambda x, y, z: knn_classifier(x, y, z, k=1), vector_x, vector_y, k=5)
-print("\n","="*50)
-print("KNN Classifier (K=1) - K-fold Cross Validation")
-print("Accuracy:", accuracy, "Error Rate:", error_rate)
-
 ### 5.C => KNN - EVALUADO CON: BOOTSTRAP
-accuracy, error_rate = bootstrap_validation(lambda x, y, z: knn_classifier(x, y, z, k=1), vector_x, vector_y, n_iterations=100)
-print("\n","="*50)
-print("KNN Classifier (K=1) - Bootstrap")
-print("Accuracy:", accuracy, "Error Rate:", error_rate)
+def run_knn_model(vector_x, vector_y):
+    accuracy, error_rate = evaluate_model(lambda x, y, z: knn_classifier(x, y, z, k=1), vector_x, vector_y, test_size=0.2)
+    print("\n","="*50)
+    print("KNN Classifier (K=1) - Train Test Split")
+    print("Accuracy:", accuracy, "Error Rate:", error_rate)
+    
+    accuracy, error_rate = k_fold_cross_validation(lambda x, y, z: knn_classifier(x, y, z, k=1), vector_x, vector_y, k=5)
+    print("\n","="*50)
+    print("KNN Classifier (K=1) - K-fold Cross Validation")
+    print("Accuracy:", accuracy, "Error Rate:", error_rate)
+    
+    accuracy, error_rate = bootstrap_validation(lambda x, y, z: knn_classifier(x, y, z, k=1), vector_x, vector_y, n_iterations=100)
+    print("\n","="*50)
+    print("KNN Classifier (K=1) - Bootstrap")
+    print("Accuracy:", accuracy, "Error Rate:", error_rate, end="\n\n")
+    
+    
+# EJECUCION DE LOS MODELOS
+run_min_distance_model(vector_x, vector_y)
+run_knn_model(vector_x, vector_y)
