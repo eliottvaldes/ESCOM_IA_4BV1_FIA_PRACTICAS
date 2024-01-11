@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 datasets = {
     "Eliot": 53, # Iris
-    "Ethel": 728, # 
+    "Ethel": 17, #Cancer 
     "Leo": 878, # Cirrhosis
-    "Adair": 109, # Wine
+    "Adair": 19, # Cars
 }
 
 dataset = fetch_ucirepo(id=datasets["Eliot"])

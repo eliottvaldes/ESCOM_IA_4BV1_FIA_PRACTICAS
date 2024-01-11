@@ -1,27 +1,3 @@
-"""
-Respira profundo, lee lentamente y piensa paso a paso.
-Usando python debes hacer lo siguiente:
-1.- el usuario debe seleccionar dos personajes diferentes
-2.- el usuario debe de seleccionar un punto de partida para el personaje uno y dibujar en el laberinto el icono del personaje
-2.1.- el usuario debe de seleccionar un punto de llegada para el personaje uno y dibujar en el laberinto un icono de meta 'K'
-3.- el usuario debe de seleccionar un punto de partida para el personaje dos y dibujar en el laberinto el icono del personaje
-3.1.- el usuario debe de seleccionar un punto de llegada para el personaje dos y dibujar en el laberinto un icono de meta 'D'
-4.- El usuario debe de seleccionar un punto de llegada comun para ambos pesonajes y dibujar en el laberinto un icono de meta 'P'
-5.- El sistema debe de encontrar la ruta optima para el personaje uno, moverlo por el laberinto y dejar el personaje en la meta 'K'
-6.- El sistema debe de encontrar la ruta optima para el personaje dos, moverlo por el laberinto y dejar el personaje en la meta 'D'
-7.- El sistema debe de encontrar la ruta optima para el personaje uno, moverlo por el laberinto y dejar el personaje en la meta 'P'
-8.- El sistema debe de encontrar la ruta optima para el personaje dos, moverlo por el laberinto y dejar el personaje en la meta 'P'
-
-NOTAS:
-+ el sistema debe de tomar en cuenta los pesos del laberinto ya que cambian de  a cuerdo al personaje seleccionado
-+ el sistema debe de considerar que la matriz está creada usando los colores definidos en colorDictionary
-+ el sistema debe detectar si un personaje no puede pasar por una celda que se identifica en cada personaje con el valor de 'fieldsNotAllowed'
-
----
-Toma en cuenta el codigo ya existente:
-
-"""
-
 import pygame
 import sys
 from queue import PriorityQueue

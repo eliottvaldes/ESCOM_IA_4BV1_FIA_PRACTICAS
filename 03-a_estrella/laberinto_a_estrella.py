@@ -1,31 +1,3 @@
-"""
-Respira profundo, lee lentamente y piensa paso a paso.
-Usando python debes hacer lo siguiente:
-1.- crear una interfaz grafica en la que se muestre un laberinto dado una matriz de 1 y 0.
-2.- el sistema debe permitirle al usuario seleccionar uno de los 4 personajes (humano, mono, pulpo, pie grande)
-3.- el usuario puede seleccionar el punto de partida de su personaje dentro del laberinto.
-3.1 El sistema debe validar que el punto de partida seleccionado no sea un punto no permitido por el personaje.
-4.- el usuario puede seleccionar el punto de llegada de su personaje dentro del laberinto.
-4.1 El sistema debe validar que el punto de llegada seleccionado no sea un punto no permitido por el personaje.
-4.2.- el sistema debe de colocar un puntito rojo en el punto de partida y un puntito verde en el punto de llegada.
-5.- el sistema debe de encontrar la ruta más indicada usando el argoritmo A estrella. La funcion debe devolver los nodos abiertos, los nodos cerrados, el arbol generado y la ruta ideal.
-6.- El sistema debe mover el personaje por el laberinto segun la ruta ideal del algoritmo A estrella. Tiene que ser como una animación de avance con un delay de 1 segundo entre cada movimiento.
-7.- El sistema debe de colocar en el laberinto la notación en texto indicada en los pasos siguientes:
-7.1- El sistema debe colocar una letra 'O' en laberinto segun sean los nodos abiertos del algoritmo a estrella.
-7.2.- El sistema debe colocar una letra 'X' en laberinto segun sean los nodos cerrados del algoritmo a estrella.
-7.3- El sistema debe colocar entre parentesis el costo total del movimiento en cada una de las celdas visitadas por el algoritmo A estrella. Ejemplo de un nodo abierto con costo de 5: O(5). Ejemplo de un nodo cerrado con costo de 2: X(2).
-8.- El sistema debe de imprimir en terminal el arbol generado con la solución del algoritmo a estrella. El formato de impresión del arbol debe ser como un directorio de carpetas, es decir, por niveles y saltos de linea.
-
-NOTAS:
-+ el sistema debe de tomar en cuenta los pesos del laberinto ya que cambian de  a cuerdo al personaje seleccionado
-+ el sistema debe de considerar que la matriz está creada usando los colores definidos en colorDictionary
-+ el sistema debe detectar si un personaje no puede pasar por una celda que se identifica en cada personaje con el valor de 'fieldsNotAllowed'
-
----
-Toma en cuenta el codigo ya existente:
-
-"""
-
 import pygame
 import sys
 from queue import PriorityQueue
