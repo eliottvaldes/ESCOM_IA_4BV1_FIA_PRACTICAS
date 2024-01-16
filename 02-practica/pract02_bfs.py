@@ -141,19 +141,6 @@ def puntoFinal():
                     print(f"Punto Final: {punto_final}")
                     return punto_final
 
-    # Verificar si la nueva posición es válida en la matriz original
-    if 0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and matriz[nueva_fila][nueva_columna] == 0:
-        # Actualizar la matriz original y la auxiliar
-        matriz[fila][columna] = matriz_aux[fila][columna]
-        matriz_aux[fila][columna] = 0
-
-        fila, columna = nueva_fila, nueva_columna
-        matriz_aux[fila][columna] = PERSONAJE
-        posicion_personaje = (fila, columna)
-
-        descubrir_casillas_adyacentes(fila, columna) # <-- Esta línea está correctamente colocada aquí
-
-        pasos = contarPasos(pasos)  # Llamada a contarPasos cada vez que el personaje se mueve
 
 def ocultaMatriz():
     for fila in range(FILA):
@@ -246,7 +233,7 @@ punto_inicial = puntoInicial()
 punto_final = puntoFinal()
 
 # Una vez que ambos puntos han sido seleccionados, oculta la matriz
-#ocultaMatriz()
+ocultaMatriz()
 
 
 
@@ -279,9 +266,7 @@ for i in range(1, len(ruta)):
 # Imprime el total de movimientos
 print(f"Total de movimientos realizados: {contador_movimientos}")
 
-
-#Muestra el arbol generado
-indice_ruta = 1  # Comenzamos en 1 ya que el punto inicial ya está en la matriz
+indice_ruta = 1  
 while True:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
@@ -290,6 +275,7 @@ while True:
 
     if indice_ruta < len(ruta):
         fila, columna = ruta[indice_ruta]
+        descubrir_casillas_adyacentes(fila, columna)
         matriz[posicion_personaje[0]][posicion_personaje[1]] = 0
         matriz[fila][columna] = PERSONAJE
         posicion_personaje = (fila, columna)

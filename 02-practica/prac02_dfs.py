@@ -141,20 +141,6 @@ def puntoFinal():
                     print(f"Punto Final: {punto_final}")
                     return punto_final
 
-    # Verificar si la nueva posición es válida en la matriz original
-    if 0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and matriz[nueva_fila][nueva_columna] == 0:
-        # Actualizar la matriz original y la auxiliar
-        matriz[fila][columna] = matriz_aux[fila][columna]
-        matriz_aux[fila][columna] = 0
-
-        fila, columna = nueva_fila, nueva_columna
-        matriz_aux[fila][columna] = PERSONAJE
-        posicion_personaje = (fila, columna)
-
-        descubrir_casillas_adyacentes(fila, columna) # <-- Esta línea está correctamente colocada aquí
-
-        pasos = contarPasos(pasos)  # Llamada a contarPasos cada vez que el personaje se mueve
-
 def ocultaMatriz():
     for fila in range(FILA):
         for columna in range(COLUMNA):
@@ -166,11 +152,6 @@ def descubrir_casillas_adyacentes(fila, columna):
         nueva_fila, nueva_columna = fila + dx, columna + dy
         if 0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA:
             matriz[nueva_fila][nueva_columna] = matriz_aux[nueva_fila][nueva_columna]
-
-def restaurar_casillas_adyacentes(fila, columna):
-    for i in range(max(0, fila - 1), min(FILA, fila + 2)):
-        for j in range(max(0, columna - 1), min(COLUMNA, columna + 2)):
-            matriz[i][j] = matriz_aux[i][j]
 
 #Cuenta los pasos que se dan
 def contarPasos(pasos):
@@ -193,8 +174,6 @@ def obtener_vecinos(nodo):
         if 0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and matriz[nueva_fila][nueva_columna] == 0:
             vecinos.append(Nodo(nueva_fila, nueva_columna, nodo))
     return vecinos
-
-
 
 def dfs(inicio, destino):
     fila_inicial, columna_inicial = inicio
@@ -219,9 +198,6 @@ def dfs(inicio, destino):
 
     return None
 
-
-
-
 def reconstruir_camino(nodo_final):
     camino = []
     nodo_actual = nodo_final
@@ -239,8 +215,6 @@ def imprimir_arbol_en_formato_de_carpetas(nodo, indent=0):
     for hijo in nodo.hijos:
         imprimir_arbol_en_formato_de_carpetas(hijo, indent + 1)
 
-
-
 dibujar_matriz()
 pygame.display.flip()
 # Muestra la matriz y espera a que el usuario seleccione el punto inicial
@@ -251,11 +225,12 @@ punto_final = puntoFinal()
 
 # Una vez que ambos puntos han sido seleccionados, oculta la matriz
 ocultaMatriz()
+
 ruta, nodo_final = dfs(punto_inicial, punto_final)
 imprimir_arbol_en_formato_de_carpetas(nodo_final)
 if ruta:
     for i in range(1, len(ruta)):
-        matriz[ruta[i][0]][ruta[i][1]] = 4  # Corrección aquí
+        matriz[ruta[i][0]][ruta[i][1]] = 4  
 
     print("Ruta encontrada:", ruta)  # para debug
 
