@@ -1,16 +1,29 @@
 import pygame
 import sys
-
+from collections import deque
+import pract02_bfs
 # Inicializar Pygame
 pygame.init()
 
-# Definir colores y configuración
-NEGRO, BLANCO, GRIS, VERDE, ROJO, AZUL = (0, 0, 0), (255, 255, 255), (128, 128, 128), (0, 255, 0), (255, 0, 0), (0, 0, 255)
-ANCHO, ALTO, FILA, COLUMNA, = 600, 600, 15, 15
-ANCHO_CELDA, ALTO_CELDA, PERSONAJE= ANCHO // COLUMNA, ALTO // FILA, 4
+# Definir colores
+NEGRO = (0, 0, 0)
+BLANCO = (255, 255, 255)
+GRIS = (128, 128, 128)
+VERDE = (0, 255, 0)
+ROJO = (255, 0, 0)
+AZUL = (0, 0, 255)
 
-# Definir matriz y variables de estado
-matriz =  [
+# Tamaños y configuración
+ANCHO = 600
+ALTO = 600
+FILA = 15
+COLUMNA = 15
+ANCHO_CELDA = ANCHO // COLUMNA
+ALTO_CELDA = ALTO // FILA
+PERSONAJE = 4
+
+# Definir la nueva matriz
+matriz = [
     [1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
@@ -28,6 +41,7 @@ matriz =  [
     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1]
 ]
 
+#Defines an auxiliar matrix with the same value as the original
 matriz_aux = [
     [1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -45,13 +59,22 @@ matriz_aux = [
     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1]
 ]
+# Inicializar Pygame ventana
+ventana = pygame.display.set_mode((ANCHO, ALTO))
+pygame.display.set_caption("Practica 2")
 
-punto_inicial_seleccionado, punto_inicial = False, None
-punto_final_seleccionado, punto_final = False, None
-posicion_personaje, pasos = None, 0
+# Variables para el punto inicial
+punto_inicial_seleccionado = False
+punto_inicial = None
 
-# Aquí incluirás todas tus funciones definidas (dibujar_matriz, puntoInicial, puntoFinal, etc.)
-# Asegúrate de que cada función sea independiente y no utilice variables externas al script.
+# Variables para el punto final
+punto_final_seleccionado = False
+punto_final = None
+
+#variables para generar personaje
+PERSONAJE = 4
+posicion_personaje = None
+pasos=0
 
 def dibujar_matriz():
     for fila in range(FILA):
@@ -161,27 +184,19 @@ def dfs(inicio, destino):
 
     while pila:
         nodo_actual = pila.pop()
+        if (nodo_actual.fila, nodo_actual.columna) in visitado:
+            continue
+
+        visitado.add((nodo_actual.fila, nodo_actual.columna))
         if (nodo_actual.fila, nodo_actual.columna) == (fila_destino, columna_destino):
-            path = []
-            while nodo_actual:
-                path.append((nodo_actual.fila, nodo_actual.columna))
-                nodo_actual = nodo_actual.padre
-            return path[::-1], nodo_inicial
+            return nodo_actual  # Devolvemos el nodo final, que tiene la referencia a todo el árbol
 
-        if (nodo_actual.fila, nodo_actual.columna) not in visitado:
-            visitado.add((nodo_actual.fila, nodo_actual.columna))
+        vecinos = obtener_vecinos(nodo_actual)
+        for vecino in reversed(vecinos):  # Revertir para mantener la prioridad correcta
+            nodo_actual.hijos.append(vecino)  # Añadimos el vecino como hijo
+            pila.append(vecino)  # Añadimos el vecino a la pila para continuar el DFS
 
-            # Priorizar direcciones: arriba, abajo, izquierda, derecha
-            direcciones_priorizadas = [(0, -1), (0, 1), (-1, 0), (1, 0)]
-            for dx, dy in direcciones_priorizadas:
-                nueva_fila, nueva_columna = nodo_actual.fila + dx, nodo_actual.columna + dy
-                if (0 <= nueva_fila < FILA and 0 <= nueva_columna < COLUMNA and
-                    matriz_aux[nueva_fila][nueva_columna] == 0 and
-                    (nueva_fila, nueva_columna) not in visitado):
-                    nodo_vecino = Nodo(nueva_fila, nueva_columna, nodo_actual)
-                    nodo_actual.hijos.append(nodo_vecino)
-                    pila.append(nodo_vecino)
-    return None, nodo_inicial
+    return None
 
 def reconstruir_camino(nodo_final):
     camino = []
@@ -196,16 +211,12 @@ def imprimir_arbol_en_formato_de_carpetas(nodo, indent=0):
     if nodo is None:
         return
     espacios = '    ' * indent  # 4 espacios por nivel de indentación
-    print(f"{espacios}|- ({nodo.fila}, {nodo.columna})")
+    print(f"{espacios}|- (Fila: {nodo.fila}, Columna: {nodo.columna})")
     for hijo in nodo.hijos:
         imprimir_arbol_en_formato_de_carpetas(hijo, indent + 1)
 
-
-# Inicializar ventana Pygame
-ventana = pygame.display.set_mode((ANCHO, ALTO))
 dibujar_matriz()
 pygame.display.flip()
-
 # Muestra la matriz y espera a que el usuario seleccione el punto inicial
 punto_inicial = puntoInicial()
 
@@ -258,7 +269,6 @@ while True:
 
     if ruta and indice_ruta < len(ruta):
         fila, columna = ruta[indice_ruta]
-        descubrir_casillas_adyacentes(fila, columna)
         matriz[posicion_personaje[0]][posicion_personaje[1]] = 0
         matriz[fila][columna] = PERSONAJE
         posicion_personaje = (fila, columna)
