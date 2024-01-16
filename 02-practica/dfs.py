@@ -200,9 +200,12 @@ def imprimir_arbol_en_formato_de_carpetas(nodo, indent=0):
     for hijo in nodo.hijos:
         imprimir_arbol_en_formato_de_carpetas(hijo, indent + 1)
 
-ventana = pygame.display.set_mode((ANCHO, ALTO))# Inicializar ventana Pygame
+
+# Inicializar ventana Pygame
+ventana = pygame.display.set_mode((ANCHO, ALTO))
 dibujar_matriz()
 pygame.display.flip()
+
 # Muestra la matriz y espera a que el usuario seleccione el punto inicial
 punto_inicial = puntoInicial()
 
@@ -255,6 +258,7 @@ while True:
 
     if ruta and indice_ruta < len(ruta):
         fila, columna = ruta[indice_ruta]
+        descubrir_casillas_adyacentes(fila, columna)
         matriz[posicion_personaje[0]][posicion_personaje[1]] = 0
         matriz[fila][columna] = PERSONAJE
         posicion_personaje = (fila, columna)
