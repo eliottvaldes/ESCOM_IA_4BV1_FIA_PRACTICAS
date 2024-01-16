@@ -202,26 +202,31 @@ def bfs(inicio, destino):
                 cola.append(nodo_vecino)
     return None, nodo_inicial
 
-def imprimir_arbol_bfs(nodo, profundidad=0, es_ultimo=True, prefijo=""):
-    if nodo is None:
+
+def imprimir_arbol_bfs_por_niveles(raiz):
+    if raiz is None:
         return
 
-    # Preparar el prefijo para las líneas de conexión del árbol
-    linea = "└── " if es_ultimo else "├── "
-    nuevo_prefijo = "    " if es_ultimo else "|   "
+    cola = deque([(raiz, 0, "")])  # Cola con tuplas de (nodo, nivel, prefijo)
 
-    # Imprimir el nodo actual con el prefijo adecuado
-    print(f"{prefijo}{linea}({nodo.fila}, {nodo.columna})")
+    while cola:
+        nodo_actual, nivel, prefijo = cola.popleft()
 
-    # Actualizar el prefijo para los hijos
-    prefijo += nuevo_prefijo
+        # Preparar la conexión del árbol para este nodo
+        conexion = "└── " if prefijo.endswith("    ") or prefijo == "" else "├── "
 
-    # Recorrer los hijos del nodo actual
-    for i, hijo in enumerate(nodo.hijos):
-        # Determinar si el hijo es el último en la lista para dibujar la línea adecuada
-        es_ultimo_hijo = i == len(nodo.hijos) - 1
-        imprimir_arbol_bfs(hijo, profundidad + 1, es_ultimo_hijo, prefijo)
+        # Imprimir el nodo actual con el prefijo adecuado
+        print(f"{prefijo}{conexion}({nodo_actual.fila}, {nodo_actual.columna})")
 
+        # Preparar el nuevo prefijo para los hijos de este nodo
+        nuevo_prefijo = prefijo + ("    " if conexion == "└── " else "|   ")
+
+        for i, hijo in enumerate(nodo_actual.hijos):
+            # Si es el último hijo, la conexión debe ser diferente
+            if i == len(nodo_actual.hijos) - 1:
+                cola.append((hijo, nivel + 1, nuevo_prefijo))
+            else:
+                cola.append((hijo, nivel + 1, nuevo_prefijo + "|   "))
 
 dibujar_matriz()
 pygame.display.flip()
@@ -238,13 +243,13 @@ ocultaMatriz()
 
 
 ruta, raiz = bfs(punto_inicial, punto_final)
-imprimir_arbol_bfs(raiz)
+imprimir_arbol_bfs_por_niveles(raiz)
 
 if ruta is None:
     print("No hay una ruta válida entre el punto inicial y el punto final.")
     sys.exit()
 
-print("Movimientos realizados:")
+print("\nMovimientos realizados:")
 contador_movimientos = 0
 for i in range(1, len(ruta)):
     fila_actual, columna_actual = ruta[i]
@@ -264,7 +269,7 @@ for i in range(1, len(ruta)):
         contador_movimientos += 1
 
 # Imprime el total de movimientos
-print(f"Total de movimientos realizados: {contador_movimientos}")
+print(f"\nTotal de movimientos realizados: {contador_movimientos}")
 
 indice_ruta = 1  
 while True:
